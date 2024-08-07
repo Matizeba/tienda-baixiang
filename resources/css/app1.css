@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    display: flex;
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%); /* Tonos dorados */
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    height: 100%;
+    background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%); /* Tonos rojos profundos */
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #ffd700; /* Dorado */
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background 0.3s, box-shadow 0.3s;
+    margin-bottom: 10px;
+}
+
+.sidebar a:hover {
+    background: #b71c1c; /* Rojo más oscuro */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+    margin-left: 250px;
+    padding: 20px;
+    background: #fff5e1; /* Fondo suave y cálido */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.navbar {
+    background-color: #c62828; /* Rojo intenso */
+    padding: 10px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.navbar .breadcrumbs {
+    display: flex;
+    align-items: center;
+}
+
+.navbar .breadcrumbs a {
+    text-decoration: none;
+    color: #d32f2f; /* Rojo más claro */
+    margin-right: 10px;
+    transition: color 0.3s;
+}
+
+.navbar .breadcrumbs a:hover {
+    color: #b71c1c; /* Rojo más oscuro */
+}
+
+.navbar .breadcrumbs span {
+    margin-right: 10px;
+    color: #6c757d;
+}
+
+.dropdown .btn {
+    background-color: #d32f2f; /* Rojo vibrante */
+    color: white;
+    border: none;
+}
+
+.dropdown .btn:hover {
+    background-color: #b71c1c; /* Rojo más oscuro */
+}
+
+.dropdown .dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.2em;
+}
+
+.user-name {
+    color: #d32f2f; /* Rojo vibrante */
+    font-weight: 600;
+}
+
+.card {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-radius: 8px 8px 0 0;
+    font-weight: 600;
+    text-align: left; /* Alinea el texto a la izquierda */
+    background-color: #ffb74d; /* Naranja claro */
+    color: white;
+}
+
+.card-body {
+    text-align: left; /* Alinea el texto a la izquierda */
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #d32f2f;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(211, 47, 47, 0.25);
+}
+
+.invalid-feedback {
+    display: block;
+    color: #dc3545;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+
+.btn-primary {
+    background-color: #d32f2f; /* Rojo vibrante */
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #b71c1c; /* Rojo más oscuro */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    background-color: #d32f2f; /* Rojo vibrante */
+    color: white;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+}
