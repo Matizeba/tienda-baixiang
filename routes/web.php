@@ -5,6 +5,14 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
+use App\Mail\TestEmail;
+use Illuminate\Support\Facades\Mail;
+
+Route::post('/send-test-email', function () {
+    Mail::to('test@example.com')->send(new TestEmail());
+    return redirect()->back()->with('status', 'Correo enviado con éxito.');
+})->name('send.test.email');
+
 //Empleados
 Route::get('/empleados', [UserController::class, 'index'])->name('users.index');
 Route::get('/empleados/create', [UserController::class, 'create'])->name('users.create');

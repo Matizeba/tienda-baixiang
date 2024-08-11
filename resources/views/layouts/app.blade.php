@@ -30,6 +30,10 @@
             <a href="#"><i class="fas fa-shopping-cart"></i> Ventas</a>
             <a href="#"><i class="fas fa-chart-line"></i> Reportes</a>
             <a href="#"><i class="fas fa-bell"></i> Alertas</a>
+            <form action="{{ route('send.test.email') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-primary">Enviar Correo de Prueba</button>
+            </form>
         </div>
         <div class="user-info">
             <!-- Información del usuario aquí -->
