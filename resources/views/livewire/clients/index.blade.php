@@ -30,9 +30,11 @@
                             <th scope="col">Nombre</th>
                             <th scope="col">Correo Electrónico</th>
                             <th scope="col">Rol</th>
+                            @if(Auth::user()->role == 1)
                             <th scope="col">Estado</th>
                             <th scope="col">ID Usuario</th>
                             <th scope="col">Acciones</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -50,6 +52,7 @@
                                         Cliente
                                     @endif
                                 </td>
+                                @if(Auth::user()->role == 1)
                                 <td>
                                     <span class="badge {{ $user->status == 1 ? 'bg-success' : 'bg-danger' }}">
                                         {{ $user->status == 1 ? 'Habilitado' : 'Deshabilitado' }}
@@ -64,6 +67,7 @@
                                         {{ $user->status ? 'Deshabilitar' : 'Habilitar' }}
                                     </button>
                                 </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>

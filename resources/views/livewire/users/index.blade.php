@@ -30,9 +30,11 @@
                             <th scope="col"><i class="fas fa-user"></i> Nombre</th>
                             <th scope="col"><i class="fas fa-envelope"></i> Correo Electrónico</th>
                             <th scope="col"><i class="fas fa-user-tag"></i> Rol</th>
+                            @if(Auth::user()->role == 1)
                             <th scope="col"><i class="fas fa-cogs"></i> Estado</th>
                             <th scope="col"><i class="fas fa-id-badge"></i> ID Usuario</th>
                             <th scope="col"><i class="fas fa-cogs"></i> Acciones</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -50,6 +52,7 @@
                                         <i class="fas fa-user"></i> Cliente
                                     @endif
                                 </td>
+                                @if(Auth::user()->role == 1)
                                 <td>
                                     <span class="badge {{ $user->status == 1 ? 'bg-success' : 'bg-danger' }}">
                                         {{ $user->status == 1 ? 'Habilitado' : 'Deshabilitado' }}
@@ -67,6 +70,7 @@
                                         <i class="fas {{ $user->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i> {{ $user->status ? '' : '' }}
                                     </button>
                                 </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>
