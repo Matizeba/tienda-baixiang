@@ -11,28 +11,28 @@
 
 <div class="container">
     <div class="d-flex justify-content-between align-items-center my-4">
-        <h1 class="h3 text-danger"><i class="fas fa-users"></i> Lista de Usuarios</h1>
-        <a href="{{ route('users.create') }}" class="btn btn-primary">
-            <i class="fas fa-user-plus"></i> Registrar Nuevo Usuario
+        <h1 class="h3 text-danger"><i class="fas fa-users"></i> Lista de Clientes</h1>
+        <a href="{{ route('clients.create') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> Registrar Nuevo Cliente
         </a>
     </div>
 
     <div class="card">
         <div class="card-header card-header-custom">
-            <i class="fas fa-users"></i> Usuarios
+            <i class="fas fa-users"></i> Clientes
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-custom">
                     <thead>
                         <tr>
-                            <th scope="col"><i class="fas fa-hashtag"></i> Nro.</th>
-                            <th scope="col"><i class="fas fa-user"></i> Nombre</th>
-                            <th scope="col"><i class="fas fa-envelope"></i> Correo Electrónico</th>
-                            <th scope="col"><i class="fas fa-user-tag"></i> Rol</th>
-                            <th scope="col"><i class="fas fa-cogs"></i> Estado</th>
-                            <th scope="col"><i class="fas fa-id-badge"></i> ID Usuario</th>
-                            <th scope="col"><i class="fas fa-cogs"></i> Acciones</th>
+                            <th scope="col">Nro.</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Correo Electrónico</th>
+                            <th scope="col">Rol</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">ID Usuario</th>
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,11 +43,11 @@
                                 <td>{{ $user->email }}</td>
                                 <td>
                                     @if ($user->role == 1)
-                                        <i class="fas fa-user-shield"></i> Administrador
+                                        Administrador
                                     @elseif ($user->role == 2)
-                                        <i class="fas fa-user-tie"></i> Vendedor
+                                        Vendedor
                                     @elseif ($user->role == 3)
-                                        <i class="fas fa-user"></i> Cliente
+                                        Cliente
                                     @endif
                                 </td>
                                 <td>
@@ -55,16 +55,13 @@
                                         {{ $user->status == 1 ? 'Habilitado' : 'Deshabilitado' }}
                                     </span>
                                 </td>
-
+                                <td>{{ optional(User::find($user->userid))->name }}</td>
                                 <td>
-                                    {{ optional(User::find($user->userid))->name }}
-                                </td>
-                                <td>
-                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-secondary">
-                                        <i class="fas fa-edit"></i> 
+                                    <a href="{{ route('clients.edit', $user->id) }}" class="btn btn-secondary">
+                                        Editar
                                     </a>
                                     <button type="button" class="btn {{ $user->status ? 'btn-danger' : 'btn-success' }}" data-bs-toggle="modal" data-bs-target="#toggleStatusModal" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-user-status="{{ $user->status }}">
-                                        <i class="fas {{ $user->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i> {{ $user->status ? '' : '' }}
+                                        {{ $user->status ? 'Deshabilitar' : 'Habilitar' }}
                                     </button>
                                 </td>
                             </tr>
@@ -109,7 +106,7 @@
             var userName = button.getAttribute('data-user-name'); 
             var userStatus = button.getAttribute('data-user-status'); 
             var form = toggleStatusModal.querySelector('#toggleStatusForm');
-            form.action = '/users/' + userId + '/toggle-status';
+            form.action = '/clients/' + userId + '/toggle-status';
 
             var actionText = userStatus == 1 ? 'deshabilitar' : 'habilitar';
             var toggleStatusActionElement = document.getElementById('toggleStatusAction');

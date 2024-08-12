@@ -6,14 +6,14 @@ body {
     display: flex;
     margin: 0;
     font-family: 'Nunito', sans-serif;
-    background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%); /* Tonos dorados */
+    background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
     min-height: 100vh;
 }
 
 .sidebar {
     width: 250px;
     height: 100%;
-    background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%); /* Tonos rojos profundos */
+    background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
     color: white;
     padding: 20px;
     display: flex;
@@ -30,7 +30,7 @@ body {
     font-weight: 600;
     margin-bottom: 20px;
     text-align: center;
-    color: #ffd700; /* Dorado */
+    color: #ffd700;
 }
 
 .sidebar a {
@@ -44,14 +44,14 @@ body {
 }
 
 .sidebar a:hover {
-    background: #b71c1c; /* Rojo más oscuro */
+    background: #b71c1c;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .content {
     margin-left: 250px;
     padding: 20px;
-    background: #fff5e1; /* Fondo suave y cálido */
+    background: #fff5e1;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     flex-grow: 1;
@@ -61,7 +61,7 @@ body {
 }
 
 .navbar {
-    background-color: #c62828; /* Rojo intenso */
+    background-color: #c62828;
     padding: 10px 20px;
     border-bottom: 1px solid #e0e0e0;
     display: flex;
@@ -79,13 +79,13 @@ body {
 
 .navbar .breadcrumbs a {
     text-decoration: none;
-    color: #d32f2f; /* Rojo más claro */
+    color: #d32f2f;
     margin-right: 10px;
     transition: color 0.3s;
 }
 
 .navbar .breadcrumbs a:hover {
-    color: #b71c1c; /* Rojo más oscuro */
+    color: #b71c1c;
 }
 
 .navbar .breadcrumbs span {
@@ -94,13 +94,13 @@ body {
 }
 
 .dropdown .btn {
-    background-color: #d32f2f; /* Rojo vibrante */
+    background-color: #d32f2f;
     color: white;
     border: none;
 }
 
 .dropdown .btn:hover {
-    background-color: #b71c1c; /* Rojo más oscuro */
+    background-color: #b71c1c;
 }
 
 .dropdown .dropdown-menu {
@@ -115,7 +115,7 @@ body {
 }
 
 .user-name {
-    color: #d32f2f; /* Rojo vibrante */
+    color: #d32f2f;
     font-weight: 600;
 }
 
@@ -127,13 +127,47 @@ body {
 .card-header {
     border-radius: 8px 8px 0 0;
     font-weight: 600;
-    text-align: left; /* Alinea el texto a la izquierda */
-    background-color: #ffb74d; /* Naranja claro */
+    text-align: left;
+    background-color: #ffb74d;
     color: white;
 }
 
 .card-body {
-    text-align: left; /* Alinea el texto a la izquierda */
+    text-align: left;
+}
+
+.table-custom {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+}
+
+.table-custom th,
+.table-custom td {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+
+.table-custom tbody tr:nth-child(odd) {
+    background-color: #f8f9fa; /* Color de fila impar */
+}
+
+.table-custom tbody tr:hover {
+    background-color: #e9ecef; /* Color al pasar el mouse */
+}
+
+.table-custom th {
+    text-align: inherit;
+    background-color: #ffb74d;
+    color: white;
+}
+
+.table-custom td {
+    background-color: white;
+    border-radius: 0.25rem;
 }
 
 .form-group {
@@ -174,12 +208,12 @@ body {
 }
 
 .btn-primary {
-    background-color: #d32f2f; /* Rojo vibrante */
+    background-color: #d32f2f;
     border: none;
 }
 
 .btn-primary:hover {
-    background-color: #b71c1c; /* Rojo más oscuro */
+    background-color: #b71c1c;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -194,8 +228,9 @@ body {
 }
 
 .modal-header {
-    background-color: #d32f2f; /* Rojo vibrante */
+    background-color: #d32f2f;
     color: white;
     padding: 10px;
     border-radius: 8px 8px 0 0;
 }
+

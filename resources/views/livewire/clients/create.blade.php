@@ -8,7 +8,7 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center my-4">
         <h1 class="h3">Registrar Nuevo Cliente</h1>
-        <a href="{{ route('users2.index') }}" class="btn btn-secondary">Volver</a>
+        <a href="{{ route('clients.index') }}" class="btn btn-secondary">Volver</a>
     </div>
 
     <div class="card">
@@ -26,7 +26,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('users.storeClient') }}" method="POST">
+            <form action="{{ route('clients.storeClient') }}" method="POST">
                 @csrf
 
                 <div class="form-group">

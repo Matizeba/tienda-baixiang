@@ -8,32 +8,32 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UserRegistered;
 
-class UserController extends Controller
+class ClientController extends Controller
 {
-    public function index(Request $request)
+    public function indexClient(Request $request)
     {
         $sortField = $request->input('sort_field', 'id');
-    $sortDirection = $request->input('sort_direction', 'asc');
-    
-    // Filtrar por roles 1 y 2
-        $users = User::whereIn('role', [1, 2])
-            ->orderBy($sortField, $sortDirection)
-            ->get();
+        $sortDirection = $request->input('sort_direction', 'asc');
+        
+        $users = User::whereIn('role', [3])
+        ->orderBy($sortField, $sortDirection)
+        ->get();
 
-        return view('livewire/users.index', compact('users', 'sortField', 'sortDirection'));
+
+        return view('livewire/clients.index', compact('users', 'sortField', 'sortDirection'));
     }
 
-    public function create()
+    public function createCLient()
     {
-        return view('livewire/users.create');
+        return view('livewire/clients.create');
     }
 
-    public function edit(User $user)
+    public function editClient(User $user)
     {
-        return view('livewire/users.edit', compact('user'));
+        return view('livewire/clients.edit', compact('user'));
     }
 
-    public function update(Request $request, User $user)
+    public function updateClient(Request $request, User $user)
     {
         $request->validate([
             'name' => [
@@ -43,7 +43,6 @@ class UserController extends Controller
                 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'
             ],
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'role' => 'required|string',
         ], [
             'name.required' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser una cadena de texto.',
@@ -60,10 +59,10 @@ class UserController extends Controller
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role,
+            
         ]);
 
-        return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
+        return redirect()->route('clients.index')->with('success', 'Usuario actualizado correctamente.');
     }
 
     public function destroy(User $user)
@@ -72,10 +71,10 @@ class UserController extends Controller
         $user->status = 0;
         $user->save();
 
-        return redirect()->route('users.index')->with('success', 'Usuario deshabilitado correctamente.');
+        return redirect()->route('clients.index')->with('success', 'Usuario deshabilitado correctamente.');
     }
 
-    public function store(Request $request)
+    public function storeClient(Request $request)
 {
     $request->validate([
         'name' => [
@@ -86,7 +85,6 @@ class UserController extends Controller
         ],
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:8|confirmed',
-        'role' => 'required|string',
     ], [
         'name.required' => 'El nombre es obligatorio.',
         'name.string' => 'El nombre debe ser una cadena de texto.',
@@ -113,23 +111,21 @@ class UserController extends Controller
         'name' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($password),
-        'role' => $request->role,
+        'role' => 3,
     ]);
 
     // Enviar el correo electrónico al usuario con la contraseña generada
     \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\UserRegistered($user, $password));
 
-    return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
+    return redirect()->route('clients.index')->with('success', 'Usuario creado exitosamente.');
 }
 
-public function toggleStatus($id)
-{
-    $user = User::findOrFail($id);
+    public function toggleClientStatus($id)
+    {
+        $user = User::findOrFail($id);
         $user->status = !$user->status; // Alternar el estado
         $user->save();
 
-    return redirect()->route('users.index')->with('success', 'Estado del usuario actualizado.');
-}
-
-
+        return redirect()->route('clients.index')->with('success', 'Estado del usuario actualizado.');
+    }
 }

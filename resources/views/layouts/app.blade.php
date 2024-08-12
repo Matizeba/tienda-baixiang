@@ -4,17 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BAIXIANG</title>
-    <!-- Fonts -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Styles -->
-    @vite(['resources/css/app1.css','resources/css/app.css', 'resources/js/app.js'])
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="{{ asset('leaflet/leaflet.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    @vite(['resources/css/app1.css', 'resources/js/app.js'])
+    @livewireStyles
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="sidebar">
         <div>
             <div class="flex items-center justify-center mt-8">
+            <div class="text-center mt-4 mb-4">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="img-fluid" style="max-height: 80px;">
+        </div>
                 <div class="flex items-center">
                     <span class="text-white text-2xl mx-2 font-semibold">BAIXIANG FAMA</span>
                 </div>
@@ -24,16 +30,18 @@
                     <span class="text-white text-2xl mx-2 font-semibold"></span>
                 </div>
             </div>
+            @if (Auth::user()->role == 1 && Auth::user()->id << 1 && Auth::user()->passwordUpdate  || Auth::user()->role == 2 && Auth::user()->passwordUpdate)
+
+            <a href="{{ route('dashboard') }}"><i class="fas fa-bars"></i> Menú</a>
+            @else
+            <a href="{{ route('dashboard') }}"><i class="fas fa-bars"></i> Menú</a>
             <a href="{{ route('users.index') }}"><i class="fas fa-users"></i> Usuarios</a>
-            <a href="{{route('users2.index')}}"><i class="fas fa-user-friends"></i> Clientes</a>
+            <a href="{{route('clients.index')}}"><i class="fas fa-user-friends"></i> Clientes</a>
             <a href="{{route('products.index')}}"><i class="fas fa-box"></i> Productos</a>
             <a href="#"><i class="fas fa-shopping-cart"></i> Ventas</a>
             <a href="#"><i class="fas fa-chart-line"></i> Reportes</a>
             <a href="#"><i class="fas fa-bell"></i> Alertas</a>
-            <form action="{{ route('send.test.email') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-primary">Enviar Correo de Prueba</button>
-            </form>
+            @endif
         </div>
         <div class="user-info">
             <!-- Información del usuario aquí -->
@@ -70,5 +78,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    @livewireScripts
+    @stack('scripts')
 </body>
 </html>

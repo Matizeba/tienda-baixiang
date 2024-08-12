@@ -1,32 +1,45 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
-use App\Mail\TestEmail;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
+use App\Mail\TestEmail;
 
-Route::post('/send-test-email', function () {
-    Mail::to('test@example.com')->send(new TestEmail());
-    return redirect()->back()->with('status', 'Correo enviado con éxito.');
-})->name('send.test.email');
+Route::get('dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
+Route::post('dashboard/update-password', [DashboardController::class, 'updatePassword'])
+    ->middleware(['auth', 'verified'])
+    ->name('password.update');
 //Empleados
-Route::get('/empleados', [UserController::class, 'index'])->name('users.index');
-Route::get('/empleados/create', [UserController::class, 'create'])->name('users.create');
-Route::post('/empleados', [UserController::class, 'store'])->name('users.store');
-Route::get('/empleados/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-Route::put('/empleados/{user}', [UserController::class, 'update'])->name('users.update');
-Route::delete('/empleados/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-//clientes
-Route::get('/clientes', [UserController::class, 'indexClients'])->name('users2.index');
-Route::get('/clientes/create', [UserController::class, 'createClient'])->name('users.createClient');
-Route::post('/clientes', [UserController::class, 'storeClient'])->name('users.storeClient');
-Route::get('/clientes/{user}/edit', [UserController::class, 'editClient'])->name('users.editClient');
-Route::put('/clientes/{user}', [UserController::class, 'updateClient'])->name('users.updateClient');
-Route::delete('/clientes/{user}', [UserController::class, 'destroyClient'])->name('users.destroyClient');
+
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Rutas para UserController
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::patch('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Rutas para ClientController
+    Route::get('/clients', [ClientController::class, 'indexClient'])->name('clients.index');
+    Route::get('/clients/create', [ClientController::class, 'createClient'])->name('clients.create');
+    Route::post('/clients', [ClientController::class, 'storeClient'])->name('clients.storeClient');
+    Route::get('/clients/{user}/edit', [ClientController::class, 'editClient'])->name('clients.edit');
+    Route::put('/clients/{user}', [ClientController::class, 'updateClient'])->name('clients.update');
+    Route::patch('/clients/{id}/toggle-status', [ClientController::class, 'toggleClientStatus'])->name('clients.toggleStatus');
+});
 
 
 //Productos

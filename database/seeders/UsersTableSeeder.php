@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -10,54 +9,87 @@ use Illuminate\Support\Facades\DB;
 class UsersTableSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Ejecutar las semillas de la base de datos.
+     *
+     * @return void
      */
-    public function run(): void
+    public function run()
     {
-        $users = [
-            [
-                'name' => 'Admin User',
-                'email' => 'admin@admin.com',
-                'role' => 1, // Admin
-                'email_verified_at' => now(),
-                'password' => Hash::make('12345678'),
-                'remember_token' => null,
-            ],
-            [
-                'name' => 'Vendor User',
-                'email' => 'vendor@example.com',
-                'role' => 2, // Vendor
-                'email_verified_at' => now(),
-                'password' => Hash::make('password123'),
-                'remember_token' => null,
-            ],
-            [
-                'name' => 'Customer User',
-                'email' => 'customer@example.com',
-                'role' => 3, // Customer
-                'email_verified_at' => now(),
-                'password' => Hash::make('password123'),
-                'remember_token' => null,
-            ],
-            [
-                'name' => 'Test User 1',
-                'email' => 'test1@example.com',
-                'role' => 1, // Admin
-                'email_verified_at' => now(),
-                'password' => Hash::make('password123'),
-                'remember_token' => null,
-            ],
-            [
-                'name' => 'Test User 2',
-                'email' => 'test2@example.com',
-                'role' => 2, // Vendor
-                'email_verified_at' => now(),
-                'password' => Hash::make('password123'),
-                'remember_token' => null,
-            ],
-        ];
 
-        // Inserta los datos en la base de datos
-        DB::table('users')->insert($users);
+        // Crear usuarios de ejemplo
+        DB::table('users')->insert([
+            [
+                'name' => 'Administrador',
+                'email' => 'admin@admin.com',
+                'role' => '1',
+                'userid' => 1,
+                'status' => 1,
+                'password' => Hash::make('12345678'),
+                'passwordUpdate'=> true,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Vendedor Uno',
+                'email' => 'vendedor1@example.com',
+                'role' => '2',
+                'userid' => 2,
+                'status' => 1,
+                'password' => Hash::make('password123'),
+                'passwordUpdate'=> true,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Administrador',
+                'email' => 'admin1@admin.com',
+                'role' => '1',
+                'userid' => 1,
+                'status' => 1,
+                'password' => Hash::make('12345678'),
+                'passwordUpdate'=> true,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Cliente Uno',
+                'email' => 'cliente1@example.com',
+                'role' => '3',
+                'userid' => 3,
+                'status' => 1,
+                'password' => Hash::make('password123'),
+                'passwordUpdate'=> true,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Vendedor Dos',
+                'email' => 'vendedor2@example.com',
+                'role' => '2',
+                'userid' => 4,
+                'status' => 1,
+                'password' => Hash::make('password123'),
+                'passwordUpdate'=> true,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Cliente Dos',
+                'email' => 'cliente2@example.com',
+                'role' => '3',
+                'userid' => 5,
+                'status' => 1,
+                'password' => Hash::make('password123'),
+                'passwordUpdate'=> true,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 }

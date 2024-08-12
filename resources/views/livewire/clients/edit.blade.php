@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('breadcrumbs')
-    <a href="{{ route('users.index') }}">/ Usuarios</a> / <a>Editar</a>
+    <a href="{{ route('clients.index') }}">/ Usuarios</a> / <a>Editar</a>
 @endsection
 
 @section('content')
@@ -9,7 +9,7 @@
     
     <div class="d-flex justify-content-between align-items-center my-4">
         <h1 class="h3">Editar Usuario</h1>
-        <a href="{{ route('users.index') }}" class="btn btn-secondary">Volver</a>
+        <a href="{{ route('clients.index') }}" class="btn btn-secondary">Volver</a>
     </div>
     
     <div class="card">
@@ -27,7 +27,7 @@
                 </div>
             @endif
 
-            <form id="userForm" action="{{ route('users.update', $user->id) }}" method="POST">
+            <form id="userForm" action="{{ route('clients.update', $user->id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -39,15 +39,6 @@
                 <div class="form-group">
                     <label for="email">Correo Electrónico</label>
                     <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" class="form-control" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="role">Rol</label>
-                    <select name="role" id="role" class="form-control" required style="height: 45px;">
-                        <option value="">Selecciona un rol</option>
-                        <option value="1" {{ old('role', $user->role) == 1 ? 'selected' : '' }}>Administrador</option>
-                        <option value="2" {{ old('role', $user->role) == 2 ? 'selected' : '' }}>Vendedor</option>
-                    </select>
                 </div>
 
                 <button type="button" class="btn btn-success mt-4" data-toggle="modal" data-target="#confirmModal">
