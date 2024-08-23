@@ -30,7 +30,7 @@
                     <span class="text-white text-2xl mx-2 font-semibold"></span>
                 </div>
             </div>
-            @if (Auth::user()->role == 1 && Auth::user()->id << 1 && Auth::user()->passwordUpdate  || Auth::user()->role == 2 && Auth::user()->passwordUpdate)
+            @if (Auth::user()->role == 1 && Auth::user()->id !=1 && Auth::user()->passwordUpdate  || Auth::user()->role == 2 && Auth::user()->passwordUpdate)
 
             <a href="{{ route('dashboard') }}"><i class="fas fa-bars"></i> Menú</a>
             @else
@@ -50,7 +50,7 @@
     <div class="content">
         <div class="navbar">
             <div class="breadcrumbs">
-                <a href="{{ route('dashboard') }}" class="text-white"><i class="fas fa-home"></i> Home</a> <span>/</span> @yield('breadcrumbs')
+                <a href="{{ route('dashboard') }}" class="text-white"><i class="fas fa-home"></i> Home</a> @yield('breadcrumbs')
             </div>
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -69,6 +69,12 @@
             </div>
         </div>
         <div>
+            @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             @yield('content')
         </div>
     </div>

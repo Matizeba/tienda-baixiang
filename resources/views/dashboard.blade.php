@@ -8,7 +8,7 @@
         </div>
     @endif
 
-    @if (Auth::user()->role == 1 && Auth::user()->id << 1 && Auth::user()->passwordUpdate  || Auth::user()->role == 2 && Auth::user()->passwordUpdate)
+    @if (Auth::user()->role == 1 && Auth::user()->id != 1 && Auth::user()->passwordUpdate  || Auth::user()->role == 2 && Auth::user()->passwordUpdate)
     <div class="container-fluid mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-6 col-md-8">

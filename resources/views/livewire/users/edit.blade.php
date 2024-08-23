@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('breadcrumbs')
-    <a href="{{ route('users.index') }}">/ Usuarios</a> / <a>Editar</a>
+ <a href="{{ route('users.index') }}" class="text-white">/ Usuarios </a> <h1 class="text-white" > / Editar</h1>
 @endsection
 
 @section('content')

@@ -67,12 +67,10 @@ class ClientController extends Controller
 
     public function destroy(User $user)
     {
-        // Eliminar lógicamente el usuario
-        $user->status = 0;
-        $user->save();
-
-        return redirect()->route('clients.index')->with('success', 'Usuario deshabilitado correctamente.');
+            $user->delete();
+            return redirect()->route('clients.index')->with('success', 'cliente eliminado permanentemente.');
     }
+
 
     public function storeClient(Request $request)
 {

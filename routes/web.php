@@ -29,9 +29,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::patch('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
-});
-
-Route::middleware(['auth', 'verified'])->group(function () {
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    
     // Rutas para ClientController
     Route::get('/clients', [ClientController::class, 'indexClient'])->name('clients.index');
     Route::get('/clients/create', [ClientController::class, 'createClient'])->name('clients.create');
@@ -39,16 +38,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/clients/{user}/edit', [ClientController::class, 'editClient'])->name('clients.edit');
     Route::put('/clients/{user}', [ClientController::class, 'updateClient'])->name('clients.update');
     Route::patch('/clients/{id}/toggle-status', [ClientController::class, 'toggleClientStatus'])->name('clients.toggleStatus');
+    Route::delete('/clients/{user}', [ClientController::class, 'destroy'])->name('clients.destroy');
+
+    // Rutas para ProductController
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::patch('/products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    
 });
 
 
 //Productos
-Route::get('/products', [ProductController::class, 'Index'])->name('products.index');
-Route::get('/products/create', [ProductController::class, 'Create'])->name('products.create');
-Route::post('/products', [ProductController::class, 'Store'])->name('products.store');
-Route::get('/products/{product}/edit', [ProductController::class, 'Edit'])->name('products.edit');
-Route::put('/products/{product}', [ProductController::class, 'Update'])->name('products.update');
-Route::delete('/products/{product}', [ProductController::class, 'Destroy'])->name('products.destroy');
+
 
 
 Route::view('/', 'welcome');

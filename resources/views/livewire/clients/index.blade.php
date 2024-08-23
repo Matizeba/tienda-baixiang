@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('breadcrumbs')
-    / Usuarios
+  <a href="{{ route('clients.index') }}" class="text-white">/ Cliente</a>
 @endsection
 
 @section('content')
@@ -40,7 +40,7 @@
                     <tbody>
                         @foreach ($users as $user)
                             <tr>
-                                <th scope="row">{{ $user->id }}</th>
+                                <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>
@@ -61,11 +61,18 @@
                                 <td>{{ optional(User::find($user->userid))->name }}</td>
                                 <td>
                                     <a href="{{ route('clients.edit', $user->id) }}" class="btn btn-secondary">
-                                        Editar
+                                        <i class="fas fa-edit"></i> 
                                     </a>
                                     <button type="button" class="btn {{ $user->status ? 'btn-danger' : 'btn-success' }}" data-bs-toggle="modal" data-bs-target="#toggleStatusModal" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-user-status="{{ $user->status }}">
-                                        {{ $user->status ? 'Deshabilitar' : 'Habilitar' }}
+                                        <i class="fas {{ $user->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i> {{ $user->status ? '' : '' }}
                                     </button>
+                                    <form action="{{ route('clients.destroy', $user->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                            <button type="submit" class="btn btn-sm" style="background-color: black; color: white;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                    </form>
                                 </td>
                                 @endif
                             </tr>

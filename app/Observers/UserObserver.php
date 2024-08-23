@@ -11,14 +11,14 @@ class UserObserver
      * Handle the User "creating" event.
      */
     public function creating(User $user): void
-{
-    $user->userid = Auth::check() ? Auth::id() : 0; 
-}
+    {
+        $user->userId = Auth::check() ? Auth::id() : 0; 
+    }
 
-public function updating(User $user): void
-{
-    $user->userid = Auth::check() ? Auth::id() : 1; 
-}
+    public function updating(User $user): void
+    {
+        $user->userId = Auth::check() ? Auth::id() : 1; 
+    }
 
 
     /**

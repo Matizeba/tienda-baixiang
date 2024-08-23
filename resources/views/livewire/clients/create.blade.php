@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('breadcrumbs')
-    Crear Cliente
+ <a href="{{ route('clients.index') }}" class="text-white"> Cliente</a> <h1 class="text-white" > / Registrar</h1>
 @endsection
 
 @section('content')
