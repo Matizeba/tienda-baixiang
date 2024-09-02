@@ -30,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::patch('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::get('/users/export', [UserController::class, 'exportToExcel'])->name('users.export');
+
     
     // Rutas para ClientController
     Route::get('/clients', [ClientController::class, 'indexClient'])->name('clients.index');
@@ -39,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/clients/{user}', [ClientController::class, 'updateClient'])->name('clients.update');
     Route::patch('/clients/{id}/toggle-status', [ClientController::class, 'toggleClientStatus'])->name('clients.toggleStatus');
     Route::delete('/clients/{user}', [ClientController::class, 'destroy'])->name('clients.destroy');
+    Route::get('/clients/export', [ClientController::class, 'exportToExcel'])->name('clients.export');
 
     // Rutas para ProductController
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
@@ -48,6 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::patch('/products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
 
 });
 

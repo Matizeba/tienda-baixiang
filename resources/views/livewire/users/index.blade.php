@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('breadcrumbs')
-<h1 class="text-white" >/ Usuarios</h1>
+<h1 class="text-white">/ Usuarios</h1>
 @endsection
 
 @section('content')
@@ -12,9 +12,15 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center my-4">
         <h1 class="h3 text-danger"><i class="fas fa-users"></i> Lista de Usuarios</h1>
-        <a href="{{ route('users.create') }}" class="btn btn-primary">
-            <i class="fas fa-user-plus"></i> Registrar Nuevo Usuario
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('users.export') }}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Exportar
+            </a>
+
+            <a href="{{ route('users.create') }}" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Registrar Nuevo Usuario
+            </a>
+        </div>
     </div>
 
     <div class="card">
@@ -76,8 +82,6 @@
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                     </form>
-
-
                                 </td>
                                 @endif
                             </tr>
@@ -135,3 +139,4 @@
 </script>
 @endpush
 @endsection
+

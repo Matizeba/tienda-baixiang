@@ -12,9 +12,16 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center my-4">
         <h1 class="h3 text-danger"><i class="fas fa-boxes"></i> Lista de Productos</h1>
-        <a href="{{ route('products.create') }}" class="btn btn-primary">
-            <i class="fas fa-box"></i> Registrar Nuevo Producto
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('products.export') }}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Exportar
+            </a>
+
+            <a href="{{ route('products.create') }}" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Registrar Nuevo Usuario
+            </a>
+        </div>
+       
     </div>
 
     <div class="card">
