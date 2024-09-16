@@ -2,10 +2,11 @@
 
 @section('content')
 <div class="container">
-    <h1 class="mb-4">Crear Venta</h1>
+    <h1 class="mb-4">Editar Venta</h1>
 
-    <form id="sale-form" action="{{ route('sales.store') }}" method="POST">
+    <form id="sale-form" action="{{ route('sales.update', $sale->id) }}" method="POST">
         @csrf
+        @method('PUT')
 
         <!-- Selección del cliente -->
         <div class="mb-3">
@@ -13,7 +14,9 @@
             <select id="customer_id" name="customer_id" class="form-select" required>
                 <option value="">Selecciona un cliente</option>
                 @foreach ($customers as $customer)
-                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                    <option value="{{ $customer->id }}" {{ $sale->customer_id == $customer->id ? 'selected' : '' }}>
+                        {{ $customer->name }}
+                    </option>
                 @endforeach
             </select>
         </div>
@@ -51,7 +54,23 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Fila de productos agregados aquí -->
+                @foreach ($sale->saleDetails as $key => $detail)
+                    <tr data-product-id="{{ $detail->product_id }}">
+                        <td>{{ $detail->product->name }}</td>
+                        <td>
+                            <input type="number" name="products[{{ $key }}][quantity]" 
+                                   value="{{ $detail->quantity }}" min="1" 
+                                   class="form-control" required>
+                            <input type="hidden" name="products[{{ $key }}][id]" value="{{ $detail->product_id }}">
+                        </td>
+                        <td>{{ $detail->price }} Bs</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm remove-product-btn">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
 
