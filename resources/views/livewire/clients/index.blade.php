@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('breadcrumbs')
-  <a href="{{ route('clients.index') }}" class="text-white">/ Cliente</a>
+  <a href="{{ route('categories.index') }}" class="text-white">/ Categorías</a>
 @endsection
 
 @section('content')
@@ -11,69 +11,61 @@
 
 <div class="container">
     <div class="d-flex justify-content-between align-items-center my-4">
-        <h1 class="h3 text-danger"><i class="fas fa-users"></i> Lista de Clientes</h1>
+        <h1 class="h3 text-danger"><i class="fas fa-tags"></i> Lista de Categorías</h1>
         <div class="d-flex gap-2">
-            <a href="{{ route('clients.export') }}" class="btn btn-success">
+            <a href="{{ route('categories.export') }}" class="btn btn-success">
                 <i class="fas fa-file-excel"></i> Exportar
             </a>
 
-            <a href="{{ route('clients.create') }}" class="btn btn-primary">
-                <i class="fas fa-user-plus"></i> Registrar Nuevo Usuario
+            <a href="{{ route('categories.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Registrar Nueva Categoría
             </a>
         </div>
     </div>
 
     <div class="card">
         <div class="card-header card-header-custom">
-            <i class="fas fa-users"></i> Clientes
+            <i class="fas fa-tags"></i> Categorías
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-custom">
                     <thead>
                         <tr>
-                            <th scope="col">Nro.</th>
-                            <th scope="col">Nombre</th>
-                            <th scope="col">Correo Electrónico</th>
-                            <th scope="col">Rol</th>
-                            @if(Auth::user()->role == 1)
-                            <th scope="col">Estado</th>
+                            <th scope="col"><i class="fas fa-hashtag"></i> Nro.</th>
+                            <th scope="col"><i class="fas fa-tag"></i> Nombre</th>
+                            <th scope="col"><i class="fas fa-info-circle"></i> Descripción</th>
                             <th scope="col">ID Usuario</th>
-                            <th scope="col">Acciones</th>
-                            @endif
+                            <th scope="col"><i class="fas fa-check-circle"></i> Estado</th>
+                            <th scope="col"><i class="fas fa-cogs"></i> Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($users as $user)
+                        @foreach ($categories as $category)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $user->name }}</td>
-                                <td>{{ $user->email }}</td>
+                                <td>{{ $category->name }}</td>
+                                <td>{{ $category->description ?? 'N/A' }}</td>
+                                <td>{{ optional(User::find($category->userId))->name }}</td>
                                 <td>
-                                    @if ($user->role == 1)
-                                        Administrador
-                                    @elseif ($user->role == 2)
-                                        Vendedor
-                                    @elseif ($user->role == 3)
-                                        Cliente
-                                    @endif
-                                </td>
-                                @if(Auth::user()->role == 1)
-                                <td>
-                                    <span class="badge {{ $user->status == 1 ? 'bg-success' : 'bg-danger' }}">
-                                        {{ $user->status == 1 ? 'Habilitado' : 'Deshabilitado' }}
+                                    <span class="badge {{ $category->status ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $category->status ? 'Habilitada' : 'Deshabilitada' }}
                                     </span>
                                 </td>
-                                <td>{{ optional(User::find($user->userid))->name }}</td>
                                 <td>
-                                    <a href="{{ route('clients.edit', $user->id) }}" class="btn btn-secondary">
+                                    <a href="{{ route('categories.edit', $category->id) }}" class="btn btn-secondary">
                                         <i class="fas fa-edit"></i> 
                                     </a>
-                                    <button type="button" class="btn {{ $user->status ? 'btn-danger' : 'btn-success' }}" data-bs-toggle="modal" data-bs-target="#toggleStatusModal" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-user-status="{{ $user->status }}">
-                                        <i class="fas {{ $user->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i> {{ $user->status ? '' : '' }}
+                                    <button type="button" class="btn {{ $category->status ? 'btn-danger' : 'btn-success' }}" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#toggleStatusModal"
+                                            data-category-id="{{ $category->id }}"
+                                            data-category-name="{{ $category->name }}"
+                                            data-category-status="{{ $category->status }}">
+                                        <i class="fas {{ $category->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                                        {{ $category->status ? 'Deshabilitar' : 'Habilitar' }}
                                     </button>
                                 </td>
-                                @endif
                             </tr>
                         @endforeach
                     </tbody>
@@ -92,7 +84,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                ¿Estás seguro de que deseas <strong id="toggleStatusAction"></strong> al usuario <strong id="userName"></strong>? Esta acción cambiará el estado del usuario.
+                ¿Estás seguro de que deseas <strong id="toggleStatusAction"></strong> la categoría <strong id="categoryName"></strong>? Esta acción cambiará el estado de la categoría.
             </div>
             <div class="modal-footer">
                 <form id="toggleStatusForm" action="" method="POST">
@@ -111,19 +103,23 @@
     document.addEventListener('DOMContentLoaded', function () {
         var toggleStatusModal = document.getElementById('toggleStatusModal');
         toggleStatusModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget; 
-            var userId = button.getAttribute('data-user-id'); 
-            var userName = button.getAttribute('data-user-name'); 
-            var userStatus = button.getAttribute('data-user-status'); 
+            var button = event.relatedTarget; // Botón que abrió el modal
+            var categoryId = button.getAttribute('data-category-id'); // ID de la categoría
+            var categoryName = button.getAttribute('data-category-name'); // Nombre de la categoría
+            var categoryStatus = button.getAttribute('data-category-status'); // Estado de la categoría
+            
+            // Configura la acción del formulario en el modal
             var form = toggleStatusModal.querySelector('#toggleStatusForm');
-            form.action = '/clients/' + userId + '/toggle-status';
+            form.action = '/categories/' + categoryId + '/toggle-status';
 
-            var actionText = userStatus == 1 ? 'deshabilitar' : 'habilitar';
+            // Establece el texto de la acción en el modal
+            var actionText = categoryStatus == 1 ? 'deshabilitar' : 'habilitar';
             var toggleStatusActionElement = document.getElementById('toggleStatusAction');
             toggleStatusActionElement.textContent = actionText;
 
-            var userNameElement = document.getElementById('userName');
-            userNameElement.textContent = userName;
+            // Establece el nombre de la categoría en el modal
+            var categoryNameElement = document.getElementById('categoryName');
+            categoryNameElement.textContent = categoryName;
         });
     });
 </script>

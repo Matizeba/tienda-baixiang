@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category; // Asegúrate de importar el modelo Category
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -26,12 +27,14 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('livewire/products.create');
+        $categories = Category::all(); // Obtener todas las categorías
+        return view('livewire/products.create', compact('categories'));
     }
 
     public function edit(Product $product)
     {
-        return view('livewire/products.edit', compact('product'));
+        $categories = Category::all(); // Obtener todas las categorías
+        return view('livewire/products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
@@ -41,25 +44,20 @@ class ProductController extends Controller
             'description' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'quantity' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
-            'category' => 'required|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validación para la imagen
+            'category_id' => 'required|exists:categories,id', // Asegúrate de que sea un ID válido de categoría
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Manejar la imagen
         if ($request->hasFile('image')) {
-            // Eliminar la imagen anterior si existe
             if ($product->image) {
                 Storage::delete('public/' . $product->image);
             }
 
-            // Obtener la extensión del archivo
             $extension = $request->file('image')->extension();
-            // Generar un nuevo nombre para la imagen
             $newImageName = 'p' . $product->id . '.' . $extension;
-            // Almacenar la imagen con el nuevo nombre
             $imagePath = $request->file('image')->storeAs('products', $newImageName, 'public');
 
-            $product->image = $imagePath; // Actualizar la ruta de la imagen
+            $product->image = $imagePath;
         }
 
         $product->update([
@@ -67,7 +65,7 @@ class ProductController extends Controller
             'description' => $request->description,
             'quantity' => $request->quantity,
             'price' => $request->price,
-            'category' => $request->category,
+            'category_id' => $request->category_id, // Asegúrate de usar category_id
         ]);
 
         return redirect()->route('products.index')->with('success', 'Producto actualizado con éxito.');
@@ -75,7 +73,6 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        // Eliminar la imagen asociada si existe
         if ($product->image) {
             Storage::delete('public/' . $product->image);
         }
@@ -92,20 +89,16 @@ class ProductController extends Controller
             'description' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'quantity' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
-            'category' => 'required|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validación para la imagen
+            'category_id' => 'required|exists:categories,id', // Asegúrate de que sea un ID válido de categoría
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Subir la imagen
         if ($request->hasFile('image')) {
-            // Obtener la extensión del archivo
             $extension = $request->file('image')->extension();
-            // Generar un nuevo nombre para la imagen
-            $newImageName = 'p' . Product::max('id') + 1 . '.' . $extension;
-            // Almacenar la imagen con el nuevo nombre
+            $newImageName = 'p' . (Product::max('id') + 1) . '.' . $extension;
             $imagePath = $request->file('image')->storeAs('products', $newImageName, 'public');
         } else {
-            $imagePath = null; // O algún valor por defecto
+            $imagePath = null;
         }
 
         $product = Product::create([
@@ -113,8 +106,8 @@ class ProductController extends Controller
             'description' => $request->description,
             'quantity' => $request->quantity,
             'price' => $request->price,
-            'category' => $request->category,
-            'image' => $imagePath, // Guardar la ruta de la imagen
+            'category_id' => $request->category_id, // Asegúrate de usar category_id
+            'image' => $imagePath,
         ]);
 
         return redirect()->route('products.index')->with('success', 'Producto creado con éxito.');
@@ -131,24 +124,20 @@ class ProductController extends Controller
 
     public function exportToExcel(Request $request)
     {
-        // Obtener los productos
         $products = Product::orderBy('id', 'asc')->get();
 
-        // Crear una nueva hoja de cálculo
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Insertar el logo en E2
         $logoPath = public_path('images/logo.png');
         $logo = new Drawing();
         $logo->setName('Logo');
         $logo->setDescription('Logo');
         $logo->setPath($logoPath);
-        $logo->setHeight(90); // Ajusta la altura del logo según sea necesario
+        $logo->setHeight(90);
         $logo->setCoordinates('E2');
         $logo->setWorksheet($sheet);
 
-        // Título y subtítulo
         $sheet->mergeCells('E2:J2');
         $sheet->setCellValue('E2', 'Tienda Baixiang');
         $sheet->getStyle('E2')->getFont()->setSize(40)->setBold(true);
@@ -163,7 +152,6 @@ class ProductController extends Controller
         $sheet->getStyle('E3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('E3:J3')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('d32f2f');
 
-        // Encabezados
         $headers = ['N°', 'Nombre', 'Descripción', 'Cantidad', 'Precio', 'Categoría'];
         $colLetters = ['E', 'F', 'G', 'H', 'I', 'J'];
 
@@ -176,7 +164,6 @@ class ProductController extends Controller
             $sheet->getStyle($cell)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         }
 
-        // Agregar datos de productos
         $row = 6;
         $num = 1;
         foreach ($products as $product) {
@@ -185,23 +172,20 @@ class ProductController extends Controller
             $sheet->setCellValue('G' . $row, $product->description);
             $sheet->setCellValue('H' . $row, $product->quantity);
             $sheet->setCellValue('I' . $row, '    ' . number_format($product->price, 2).'BS.');
-            $sheet->setCellValue('J' . $row, $product->category);
+            $sheet->setCellValue('J' . $row, $product->category->name); // Asegúrate de mostrar el nombre de la categoría
             $sheet->getStyle('E' . $row . ':J' . $row)->getFont()->setSize(18);
             $sheet->getStyle('E' . $row . ':J' . $row)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
             $row++;
             $num++;
         }
 
-        // Ajustar el ancho de las columnas
         foreach (range('E', 'J') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        // Crear el archivo Excel
         $writer = new Xlsx($spreadsheet);
         $filename = 'productos.xlsx';
         
-        // Configurar los headers para la descarga
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');

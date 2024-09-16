@@ -53,8 +53,15 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="category">Categoría</label>
-                    <input type="number" name="category" id="category" value="{{ old('category', $product->category) }}" class="form-control" min="1" step="1" required>
+                    <label for="category_id">Categoría</label>
+                    <select name="category_id" id="category_id" class="form-control" required>
+                        <option value="">Selecciona una categoría</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}" {{ $product->category_id == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <!-- Mostrar la imagen actual -->
@@ -120,7 +127,7 @@
         const descriptionInput = document.getElementById('description');
         const quantityInput = document.getElementById('quantity');
         const priceInput = document.getElementById('price');
-        const categoryInput = document.getElementById('category');
+        const categoryInput = document.getElementById('category_id');
 
         const modalName = document.getElementById('modalName');
         const modalDescription = document.getElementById('modalDescription');
@@ -133,7 +140,7 @@
             modalDescription.textContent = descriptionInput.value;
             modalQuantity.textContent = quantityInput.value;
             modalPrice.textContent = priceInput.value;
-            modalCategory.textContent = categoryInput.value;
+            modalCategory.textContent = categoryInput.options[categoryInput.selectedIndex].text;
         });
 
         // Enviar el formulario al confirmar

@@ -6,7 +6,7 @@
 
 @section('content')
 @php
-    use App\Models\Category;
+    use App\Models\User;
 @endphp
 
 <div class="container">
@@ -35,6 +35,8 @@
                             <th scope="col"><i class="fas fa-hashtag"></i> Nro.</th>
                             <th scope="col"><i class="fas fa-tag"></i> Nombre</th>
                             <th scope="col"><i class="fas fa-info-circle"></i> Descripción</th>
+                            <th scope="col">ID Usuario</th>
+                            <th scope="col"><i class="fas fa-check-circle"></i> Estado</th>
                             <th scope="col"><i class="fas fa-cogs"></i> Acciones</th>
                         </tr>
                     </thead>
@@ -44,17 +46,24 @@
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $category->name }}</td>
                                 <td>{{ $category->description ?? 'N/A' }}</td>
+                                <td>{{ optional(User::find($category->userId))->name }}</td>
+                                <td>
+                                    <span class="badge {{ $category->status ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $category->status ? 'Habilitada' : 'Deshabilitada' }}
+                                    </span>
+                                </td>
                                 <td>
                                     <a href="{{ route('categories.edit', $category->id) }}" class="btn btn-secondary">
-                                        <i class="fas fa-edit"></i> 
+                                        <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('categories.destroy', $category->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta categoría?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <button type="button" class="btn {{ $category->status ? 'btn-danger' : 'btn-success' }}" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#toggleStatusModal"
+                                            data-category-id="{{ $category->id }}"
+                                            data-category-name="{{ $category->name }}"
+                                            data-category-status="{{ $category->status }}">
+                                        <i class="fas {{ $category->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -64,4 +73,53 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de Cambio de Estado -->
+<div class="modal fade" id="toggleStatusModal" tabindex="-1" aria-labelledby="toggleStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title" id="toggleStatusModalLabel"><i class="fas fa-exclamation-triangle"></i> Confirmar Cambio de Estado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas <strong id="toggleStatusAction"></strong> la categoría <strong id="categoryName"></strong>? Esta acción cambiará el estado de la categoría.
+            </div>
+            <div class="modal-footer">
+                <form id="toggleStatusForm" action="" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var toggleStatusModal = document.getElementById('toggleStatusModal');
+        toggleStatusModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // Botón que abrió el modal
+            var categoryId = button.getAttribute('data-category-id'); // ID de la categoría
+            var categoryName = button.getAttribute('data-category-name'); // Nombre de la categoría
+            var categoryStatus = button.getAttribute('data-category-status'); // Estado de la categoría
+            
+            // Configura la acción del formulario en el modal
+            var form = toggleStatusModal.querySelector('#toggleStatusForm');
+            form.action = '/categories/' + categoryId + '/toggle-status';
+            
+            // Define el texto de la acción según el estado actual
+            var actionText = categoryStatus == 1 ? 'deshabilitar' : 'habilitar';
+            var toggleStatusActionElement = document.getElementById('toggleStatusAction');
+            toggleStatusActionElement.textContent = actionText;
+            
+            var categoryNameElement = document.getElementById('categoryName');
+            categoryNameElement.textContent = categoryName;
+        });
+    });
+</script>
+@endpush
 @endsection

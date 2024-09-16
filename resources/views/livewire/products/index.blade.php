@@ -7,6 +7,7 @@
 @section('content')
 @php
     use App\Models\User;
+    use App\Models\Category;
 @endphp
 
 <div class="container">
@@ -18,7 +19,7 @@
             </a>
 
             <a href="{{ route('products.create') }}" class="btn btn-primary">
-                <i class="fas fa-user-plus"></i> Registrar Nuevo Usuario
+                <i class="fas fa-plus"></i> Registrar Nuevo Producto
             </a>
         </div>
     </div>
@@ -33,7 +34,7 @@
                     <thead>
                         <tr>
                             <th scope="col"><i class="fas fa-hashtag"></i> Nro.</th>
-                            <th scope="col"><i class="fas fa-box"></i> Imagen</th> <!-- Nueva columna -->
+                            <th scope="col"><i class="fas fa-box"></i> Imagen</th>
                             <th scope="col"><i class="fas fa-box"></i> Nombre</th>
                             <th scope="col"><i class="fas fa-dollar-sign"></i> Precio</th>
                             <th scope="col"><i class="fas fa-dollar-sign"></i> Cantidad</th>
@@ -59,7 +60,7 @@
                                 <td>{{ $product->name }} </td>
                                 <td>{{ $product->price }}<span> Bs</span></td>
                                 <td>{{ $product->quantity }}</td>
-                                <td>{{ $product->category}}</td>
+                                <td>{{ optional($product->category)->name }}</td>
                                 @if(Auth::user()->role == 1)
                                 <td>
                                     <span class="badge {{ $product->status == 1 ? 'bg-success' : 'bg-danger' }}">
@@ -129,5 +130,6 @@
         });
     });
 </script>
+
 @endpush
 @endsection

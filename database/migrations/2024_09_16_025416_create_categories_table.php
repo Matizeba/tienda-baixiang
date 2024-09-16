@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique(); 
             $table->string('description');
-            $table->tinyInteger('userId');
+            $table->tinyInteger('userId')->default(0);
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });

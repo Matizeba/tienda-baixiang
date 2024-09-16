@@ -93,6 +93,17 @@ class CategoryController extends Controller
 
         return redirect()->route('categories.index')->with('success', 'Categoría creada exitosamente.');
     }
+    public function toggleStatus($id)
+    {
+        $category = Category::findOrFail($id);
+
+        // Alternar el estado
+        $category->status = !$category->status;
+        $category->save();
+
+        return redirect()->route('categories.index')->with('success', 'Estado de la categoría actualizado.');
+    }
+
 
     public function exportToExcel(Request $request)
     {

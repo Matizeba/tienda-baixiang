@@ -126,6 +126,14 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
     }
+    public function toggleStatus($id)
+    {
+        $user = User::findOrFail($id);
+        $user->status = !$user->status; // Alternar el estado
+        $user->save();
+
+        return redirect()->route('users.index')->with('success', 'Estado del usuario actualizado.');
+    }
 
     public function exportToExcel(Request $request)
     {

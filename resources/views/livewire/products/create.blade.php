@@ -51,8 +51,14 @@
 
                 <div class="form-group">
                     <label for="category">Categoría</label>
-                    <input type="number" min="1" step="1" name="category" id="category" class="form-control" value="{{ old('category') }}" required>
+                    <select name="category_id" id="category_id" class="form-control" required>
+                        <option value="">Selecciona una categoría</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
+
 
                 <!-- Campo para subir imagen -->
                 <div class="form-group">
@@ -120,7 +126,7 @@
             modalDescription.textContent = descriptionInput.value;
             modalQuantity.textContent = quantityInput.value;
             modalPrice.textContent = priceInput.value;
-            modalCategory.textContent = categoryInput.value;
+            modalCategory.textContent = categoryInput.options[categoryInput.selectedIndex].text; // Mostrar nombre de la categoría seleccionada
             modalImage.textContent = imageInput.files.length ? imageInput.files[0].name : 'No seleccionada'; // Mostrar nombre de archivo de la imagen
         });
 
