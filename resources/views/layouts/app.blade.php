@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BAIXIANG</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -39,7 +42,8 @@
             <a href="{{route('products.index')}}"><i class="fas fa-box"></i> Productos</a>
             <a href="{{ route('products.view') }}"><i class="fas fa-eye"></i> Ver Productos</a>
             <a href="{{ route('categories.index') }}"><i class="fas fa-list"></i> Categorías</a>
-            <a href="#"><i class="fas fa-shopping-cart"></i> Ventas</a>
+            <a href="{{ route('sales.create') }}"><i class="fas fa-shopping-cart"></i> Ventas</a>
+            <a href="{{ route('sales.index') }}"><i class="fas fa-shopping-cart"></i> Ventas</a>
             <a href="#"><i class="fas fa-chart-line"></i> Reportes</a>
             <a href="#"><i class="fas fa-bell"></i> Alertas</a>
             @endif

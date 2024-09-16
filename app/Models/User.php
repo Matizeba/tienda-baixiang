@@ -46,4 +46,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+    public function sales()
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    // Relación con las ventas donde el usuario es el cliente
+    public function purchases()
+    {
+        return $this->hasMany(Sale::class, 'customer_id');
+    }
 }

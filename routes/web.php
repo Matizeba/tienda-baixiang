@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
@@ -73,7 +74,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-//Productos
+
+// Rutas para la gestión de ventas
+Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');                // Lista todas las ventas
+Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');        // Muestra el formulario para crear una nueva venta
+Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');                // Almacena una nueva venta
+Route::get('/sales/{sale}/edit', [SaleController::class, 'edit'])->name('sales.edit');        // Muestra el formulario para editar una venta existente
+Route::put('/sales/{sale}', [SaleController::class, 'update'])->name('sales.update');         // Actualiza una venta existente
+Route::delete('/sales/{sale}', [SaleController::class, 'destroy'])->name('sales.destroy');    // Elimina una venta existente
+            // Muestra los detalles de una venta específica
+Route::get('/sales/view', [SaleController::class, 'view'])->name('sales.view');              // Muestra una vista específica (puede ser para filtros, listado, etc.)
+Route::get('/sales/export', [SaleController::class, 'exportToExcel'])->name('sales.export'); // Exporta ventas a Excel
+Route::get('/sales/{sale}/details', [SaleController::class, 'getDetails'])->name('sales.details');
+Route::get('/sales/{id}/details', [SaleController::class, 'showDetails']);
+// routes/web.php
+
+Route::get('/sales/{id}', [SaleController::class, 'show'])->name('sales.show');
+
+
 
 
 
