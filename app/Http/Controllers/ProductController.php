@@ -47,12 +47,17 @@ class ProductController extends Controller
 
         // Manejar la imagen
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-
             // Eliminar la imagen anterior si existe
             if ($product->image) {
                 Storage::delete('public/' . $product->image);
             }
+
+            // Obtener la extensión del archivo
+            $extension = $request->file('image')->extension();
+            // Generar un nuevo nombre para la imagen
+            $newImageName = 'p' . $product->id . '.' . $extension;
+            // Almacenar la imagen con el nuevo nombre
+            $imagePath = $request->file('image')->storeAs('products', $newImageName, 'public');
 
             $product->image = $imagePath; // Actualizar la ruta de la imagen
         }
@@ -93,7 +98,12 @@ class ProductController extends Controller
 
         // Subir la imagen
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
+            // Obtener la extensión del archivo
+            $extension = $request->file('image')->extension();
+            // Generar un nuevo nombre para la imagen
+            $newImageName = 'p' . Product::max('id') + 1 . '.' . $extension;
+            // Almacenar la imagen con el nuevo nombre
+            $imagePath = $request->file('image')->storeAs('products', $newImageName, 'public');
         } else {
             $imagePath = null; // O algún valor por defecto
         }
