@@ -28,7 +28,7 @@
                 </div>
             @endif
 
-            <form id="productForm" action="{{ route('products.update', $product->id) }}" method="POST">
+            <form id="productForm" action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -55,6 +55,25 @@
                 <div class="form-group">
                     <label for="category">Categoría</label>
                     <input type="number" name="category" id="category" value="{{ old('category', $product->category) }}" class="form-control" min="1" step="1" required>
+                </div>
+
+                <!-- Mostrar la imagen actual -->
+                <div class="form-group mt-4">
+                    <label for="current_image">Imagen Actual</label>
+                    <div class="mb-2">
+                        @if($product->image)
+                            <img src="{{ asset('storage/' . $product->image) }}" alt="Imagen del Producto" class="img-thumbnail" width="150">
+                        @else
+                            <p>No hay imagen disponible</p>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Subir nueva imagen -->
+                <div class="form-group">
+                    <label for="image">Reemplazar Imagen</label>
+                    <input type="file" name="image" id="image" class="form-control">
+                    <small class="form-text text-muted">Opcional. Si subes una nueva imagen, la anterior será reemplazada.</small>
                 </div>
 
                 <button type="button" class="btn btn-success mt-4" data-toggle="modal" data-target="#confirmModal">

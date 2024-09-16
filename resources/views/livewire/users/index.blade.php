@@ -75,13 +75,7 @@
                                     <button type="button" class="btn {{ $user->status ? 'btn-danger' : 'btn-success' }}" data-bs-toggle="modal" data-bs-target="#toggleStatusModal" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-user-status="{{ $user->status }}">
                                         <i class="fas {{ $user->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i> {{ $user->status ? '' : '' }}
                                     </button>
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                            <button type="submit" class="btn btn-sm" style="background-color: black; color: white;">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                    </form>
+                                    
                                 </td>
                                 @endif
                             </tr>

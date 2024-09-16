@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -17,7 +18,7 @@ class ProductController extends Controller
     {
         $sortField = $request->input('sort_field', 'id');
         $sortDirection = $request->input('sort_direction', 'asc');
-        
+
         $products = Product::orderBy($sortField, $sortDirection)->get();
 
         return view('livewire/products.index', compact('products', 'sortField', 'sortDirection'));
@@ -36,12 +37,25 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'], // Solo letras y espacios
-            'description' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'], // Solo letras y espacios
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'description' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'quantity' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
-            'category' => 'required|numeric', // Solo números para categorías
+            'category' => 'required|numeric',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validación para la imagen
         ]);
+
+        // Manejar la imagen
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public');
+
+            // Eliminar la imagen anterior si existe
+            if ($product->image) {
+                Storage::delete('public/' . $product->image);
+            }
+
+            $product->image = $imagePath; // Actualizar la ruta de la imagen
+        }
 
         $product->update([
             'name' => $request->name,
@@ -56,19 +70,33 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        // Eliminar la imagen asociada si existe
+        if ($product->image) {
+            Storage::delete('public/' . $product->image);
+        }
+
         $product->delete();
+
         return redirect()->route('products.index')->with('success', 'Producto eliminado con éxito.');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'], // Solo letras y espacios
-            'description' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'], // Solo letras y espacios
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'description' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'quantity' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
-            'category' => 'required|numeric', // Solo números para categorías
+            'category' => 'required|numeric',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validación para la imagen
         ]);
+
+        // Subir la imagen
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public');
+        } else {
+            $imagePath = null; // O algún valor por defecto
+        }
 
         $product = Product::create([
             'name' => $request->name,
@@ -76,6 +104,7 @@ class ProductController extends Controller
             'quantity' => $request->quantity,
             'price' => $request->price,
             'category' => $request->category,
+            'image' => $imagePath, // Guardar la ruta de la imagen
         ]);
 
         return redirect()->route('products.index')->with('success', 'Producto creado con éxito.');
@@ -84,7 +113,7 @@ class ProductController extends Controller
     public function toggleStatus($id)
     {
         $product = Product::findOrFail($id);
-        $product->status = !$product->status; // Cambiar el estado
+        $product->status = !$product->status;
         $product->save();
 
         return redirect()->route('products.index')->with('success', 'Estado del producto actualizado con éxito.');
@@ -106,59 +135,54 @@ class ProductController extends Controller
         $logo->setDescription('Logo');
         $logo->setPath($logoPath);
         $logo->setHeight(90); // Ajusta la altura del logo según sea necesario
-        $logo->setCoordinates('E2'); // Establece la celda en la que se ubicará el logo
+        $logo->setCoordinates('E2');
         $logo->setWorksheet($sheet);
 
         // Título y subtítulo
-        $sheet->mergeCells('E2:J2'); // Ajustar el rango para desplazar el contenido
+        $sheet->mergeCells('E2:J2');
         $sheet->setCellValue('E2', 'Tienda Baixiang');
-        $sheet->getStyle('E2')->getFont()->setSize(40)->setBold(true); // Aumentar tamaño de texto
-        $sheet->getStyle('E2')->getFont()->getColor()->setARGB('FFFFFF'); // Color del texto blanco
+        $sheet->getStyle('E2')->getFont()->setSize(40)->setBold(true);
+        $sheet->getStyle('E2')->getFont()->getColor()->setARGB('FFFFFF');
         $sheet->getStyle('E2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('E2:J2')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('d32f2f'); // Color de fondo
+        $sheet->getStyle('E2:J2')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('d32f2f');
 
-        $sheet->mergeCells('E3:J3'); // Ajustar el rango para desplazar el contenido
+        $sheet->mergeCells('E3:J3');
         $sheet->setCellValue('E3', 'Lista de Productos');
-        $sheet->getStyle('E3')->getFont()->setSize(30)->setBold(true); // Aumentar tamaño de texto
-        $sheet->getStyle('E3')->getFont()->getColor()->setARGB('FFFFFF'); // Color del texto blanco
+        $sheet->getStyle('E3')->getFont()->setSize(30)->setBold(true);
+        $sheet->getStyle('E3')->getFont()->getColor()->setARGB('FFFFFF');
         $sheet->getStyle('E3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('E3:J3')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('d32f2f'); // Color de fondo
+        $sheet->getStyle('E3:J3')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('d32f2f');
 
-        // Ajustar el ancho de las columnas para los encabezados
+        // Encabezados
         $headers = ['N°', 'Nombre', 'Descripción', 'Cantidad', 'Precio', 'Categoría'];
         $colLetters = ['E', 'F', 'G', 'H', 'I', 'J'];
 
         foreach ($headers as $index => $header) {
-            $cell = $colLetters[$index] . '5'; // Ajustar la fila de encabezado a la fila 5
+            $cell = $colLetters[$index] . '5';
             $sheet->setCellValue($cell, $header);
-
-            // Aplicar formato de encabezado
-            $sheet->getStyle($cell)->getFont()->setBold(true)->setSize(20); // Tamaño de texto en encabezado
+            $sheet->getStyle($cell)->getFont()->setBold(true)->setSize(20);
             $sheet->getStyle($cell)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle($cell)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFFF00'); // Color de fondo amarillo
+            $sheet->getStyle($cell)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFFF00');
             $sheet->getStyle($cell)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         }
 
         // Agregar datos de productos
-        $row = 6; // Iniciar en la fila 6
-        $num = 1; // Iniciar enumeración en 1
+        $row = 6;
+        $num = 1;
         foreach ($products as $product) {
-            $sheet->setCellValue('E' . $row, $num); // Número de enumeración
+            $sheet->setCellValue('E' . $row, $num);
             $sheet->setCellValue('F' . $row, $product->name);
             $sheet->setCellValue('G' . $row, $product->description);
             $sheet->setCellValue('H' . $row, $product->quantity);
-            $sheet->setCellValue('I' . $row, '    ' . number_format($product->price, 2).'BS.'); // Concatenar 'BS.' al precio y formatear como número decimal
+            $sheet->setCellValue('I' . $row, '    ' . number_format($product->price, 2).'BS.');
             $sheet->setCellValue('J' . $row, $product->category);
-            
-            // Aplicar formato a las celdas de datos
-            $sheet->getStyle('E' . $row . ':J' . $row)->getFont()->setSize(18); // Tamaño de texto en datos
+            $sheet->getStyle('E' . $row . ':J' . $row)->getFont()->setSize(18);
             $sheet->getStyle('E' . $row . ':J' . $row)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-
             $row++;
             $num++;
         }
 
-        // Ajustar automáticamente el ancho de las columnas
+        // Ajustar el ancho de las columnas
         foreach (range('E', 'J') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
@@ -167,12 +191,11 @@ class ProductController extends Controller
         $writer = new Xlsx($spreadsheet);
         $filename = 'productos.xlsx';
         
-        // Configurar los headers para la descarga del archivo
+        // Configurar los headers para la descarga
         header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename="' . $filename . '"'); 
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
         
-        // Enviar el archivo al navegador
         $writer->save('php://output');
         exit;
     }

@@ -21,7 +21,6 @@
                 <i class="fas fa-user-plus"></i> Registrar Nuevo Usuario
             </a>
         </div>
-       
     </div>
 
     <div class="card">
@@ -34,6 +33,7 @@
                     <thead>
                         <tr>
                             <th scope="col"><i class="fas fa-hashtag"></i> Nro.</th>
+                            <th scope="col"><i class="fas fa-box"></i> Imagen</th> <!-- Nueva columna -->
                             <th scope="col"><i class="fas fa-box"></i> Nombre</th>
                             <th scope="col"><i class="fas fa-dollar-sign"></i> Precio</th>
                             <th scope="col"><i class="fas fa-dollar-sign"></i> Cantidad</th>
@@ -41,7 +41,6 @@
                             @if(Auth::user()->role == 1)
                             <th scope="col"><i class="fas fa-cogs"></i> Estado</th>
                             <th scope="col"><i class="fas fa-cogs"></i> Usuario</th>
-
                             <th scope="col"><i class="fas fa-cogs"></i> Acciones</th>
                             @endif
                         </tr>
@@ -50,13 +49,19 @@
                         @foreach ($products as $product)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
+                                <td>
+                                    @if($product->image)
+                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" width="100" height="100">
+                                    @else
+                                        <img src="{{ asset('images/default-product.png') }}" alt="Imagen por defecto" width="100" height="100">
+                                    @endif
+                                </td>
                                 <td>{{ $product->name }} </td>
                                 <td>{{ $product->price }}<span> Bs</span></td>
                                 <td>{{ $product->quantity }}</td>
                                 <td>{{ $product->category}}</td>
                                 @if(Auth::user()->role == 1)
                                 <td>
-                                
                                     <span class="badge {{ $product->status == 1 ? 'bg-success' : 'bg-danger' }}">
                                         {{ $product->status == 1 ? 'Disponible' : 'No disponible' }}
                                     </span>
@@ -69,13 +74,6 @@
                                     <button type="button" class="btn {{ $product->status ? 'btn-danger' : 'btn-success' }}" data-bs-toggle="modal" data-bs-target="#toggleStatusModal" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}" data-product-status="{{ $product->status }}">
                                         <i class="fas {{ $product->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
                                     </button>
-                                    <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm" style="background-color: black; color: white;">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </form>
                                 </td>
                                 @endif
                             </tr>

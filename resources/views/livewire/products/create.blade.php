@@ -26,7 +26,7 @@
                 </div>
             @endif
 
-            <form id="productForm" action="{{ route('products.store') }}" method="POST">
+            <form id="productForm" action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
@@ -52,6 +52,12 @@
                 <div class="form-group">
                     <label for="category">Categoría</label>
                     <input type="number" min="1" step="1" name="category" id="category" class="form-control" value="{{ old('category') }}" required>
+                </div>
+
+                <!-- Campo para subir imagen -->
+                <div class="form-group">
+                    <label for="image">Imagen del Producto</label>
+                    <input type="file" name="image" id="image" class="form-control-file" accept="image/*">
                 </div>
 
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmModal">
@@ -80,6 +86,7 @@
                     <li><strong>Cantidad:</strong> <span id="modalQuantity"></span></li>
                     <li><strong>Precio:</strong> <span id="modalPrice"></span></li>
                     <li><strong>Categoría:</strong> <span id="modalCategory"></span></li>
+                    <li><strong>Imagen:</strong> <span id="modalImage"></span></li> <!-- Imagen agregada -->
                 </ul>
                 <p>¿Estás seguro de que deseas continuar?</p>
             </div>
@@ -99,12 +106,14 @@
         const quantityInput = document.getElementById('quantity');
         const priceInput = document.getElementById('price');
         const categoryInput = document.getElementById('category');
+        const imageInput = document.getElementById('image'); // Agregando la imagen
 
         const modalName = document.getElementById('modalName');
         const modalDescription = document.getElementById('modalDescription');
         const modalQuantity = document.getElementById('modalQuantity');
         const modalPrice = document.getElementById('modalPrice');
         const modalCategory = document.getElementById('modalCategory');
+        const modalImage = document.getElementById('modalImage'); // Modal para la imagen
 
         document.querySelector('[data-target="#confirmModal"]').addEventListener('click', function() {
             modalName.textContent = nameInput.value;
@@ -112,6 +121,7 @@
             modalQuantity.textContent = quantityInput.value;
             modalPrice.textContent = priceInput.value;
             modalCategory.textContent = categoryInput.value;
+            modalImage.textContent = imageInput.files.length ? imageInput.files[0].name : 'No seleccionada'; // Mostrar nombre de archivo de la imagen
         });
 
         // Enviar el formulario al confirmar
