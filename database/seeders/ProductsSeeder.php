@@ -4,160 +4,141 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductsSeeder extends Seeder
 {
     /**
-     * Ejecutar las semillas de la base de datos.
-     *
-     * @return void
+     * Run the database seeds.
      */
-    public function run()
+    public function run(): void
     {
-        DB::table('products')->insert([
+        $products = [
             [
-                'name' => 'Dumplings',
-                'description' => 'Empanadillas chinas tradicionales rellenas de cerdo y verduras.',
-                'quantity' => 150,
-                'price' => 12.99,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
+                'name' => 'Producto 1',
+                'description' => 'Descripción del producto 1.',
+                'image' => 'products/p1.png', 
+                'quantity' => 15,
+                'price' => 120.00,
+                'category_id' => 1,
                 'status' => 1,
-                'userId' => 1, // Asegúrate de que el ID del usuario exista en la tabla users
+                'userId' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Pato Pekín',
-                'description' => 'Plato famoso chino con piel de pato crujiente y carne tierna.',
-                'quantity' => 50,
-                'price' => 29.99,
-                'category'=> 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
-                'status' => 1,
-                'userId' => 2, // Asegúrate de que el ID del usuario exista en la tabla users
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Rollos Primavera',
-                'description' => 'Rollos crujientes rellenos de una mezcla de verduras y carne.',
-                'quantity' => 200,
-                'price' => 8.99,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
-                'status' => 1,
-                'userId' => 3, // Asegúrate de que el ID del usuario exista en la tabla users
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Pollo agridulce',
-                'description' => 'Trozos de pollo cubiertos con una salsa agridulce.',
-                'quantity' => 80,
-                'price' => 15.99,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
-                'status' => 1,
-                'userId' => 4, // Asegúrate de que el ID del usuario exista en la tabla users
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Pollo Kung Pao',
-                'description' => 'Pollo salteado con cacahuetes, verduras y salsa picante.',
-                'quantity' => 60,
-                'price' => 17.99,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
-                'status' => 1,
-                'userId' => 5, // Asegúrate de que el ID del usuario exista en la tabla users
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Arroz Frito',
-                'description' => 'Arroz salteado con verduras, huevo y carne.',
-                'quantity' => 120,
-                'price' => 10.49,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
-                'status' => 1,
-                'userId' => 1, // Asegúrate de que el ID del usuario exista en la tabla users
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Sopa de Rollos de Primavera',
-                'description' => 'Sopa con sabor a rollos primavera crujientes y suculentos.',
-                'quantity' => 90,
-                'price' => 11.49,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
-                'status' => 1,
-                'userId' => 2, // Asegúrate de que el ID del usuario exista en la tabla users
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Tallarines Chinos',
-                'description' => 'Tallarines salteados con verduras y carne en salsa de soja.',
-                'quantity' => 75,
-                'price' => 13.99,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
-                'status' => 1,
-                'userId' => 3, // Asegúrate de que el ID del usuario exista en la tabla users
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Cerdo a la Barbacoa',
-                'description' => 'Cerdo cocido lentamente con salsa barbacoa.',
-                'quantity' => 40,
-                'price' => 19.99,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
-                'status' => 1,
-                'userId' => 4, // Asegúrate de que el ID del usuario exista en la tabla users
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Costillas a la Sichuan',
-                'description' => 'Costillas de cerdo con un toque picante y especiado.',
+                'name' => 'Producto 2',
+                'description' => 'Descripción del producto 2.',
+                'image' => 'path/to/image2.jpg',
                 'quantity' => 30,
-                'price' => 22.99,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
+                'price' => 80.00,
+                'category_id' => 2,
                 'status' => 1,
-                'userId' => 5, // Asegúrate de que el ID del usuario exista en la tabla users
+                'userId' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Mapo Tofu',
-                'description' => 'Tofu cocido en una salsa picante de frijoles.',
-                'quantity' => 85,
-                'price' => 14.99,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
+                'name' => 'Producto 3',
+                'description' => 'Descripción del producto 3.',
+                'image' => 'path/to/image3.jpg',
+                'quantity' => 25,
+                'price' => 55.00,
+                'category_id' => 1,
                 'status' => 1,
-                'userId' => 1, // Asegúrate de que el ID del usuario exista en la tabla users
+                'userId' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Dim Sum',
-                'description' => 'Selección de pequeñas porciones de comida china tradicional.',
-                'quantity' => 110,
-                'price' => 16.99,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
+                'name' => 'Producto 4',
+                'description' => 'Descripción del producto 4.',
+                'image' => 'path/to/image4.jpg',
+                'quantity' => 10,
+                'price' => 99.00,
+                'category_id' => 3,
                 'status' => 1,
-                'userId' => 2, // Asegúrate de que el ID del usuario exista en la tabla users
+                'userId' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Pollo al Estilo Cantones',
-                'description' => 'Pollo salteado con verduras y salsa cantonesa.',
-                'quantity' => 70,
-                'price' => 18.49,
-                'category' => 1, // Asegúrate de que el ID de la categoría coincida con el ID de la categoría "Food"
+                'name' => 'Producto 5',
+                'description' => 'Descripción del producto 5.',
+                'image' => 'path/to/image5.jpg',
+                'quantity' => 50,
+                'price' => 40.00,
+                'category_id' => 2,
                 'status' => 1,
-                'userId' => 3, // Asegúrate de que el ID del usuario exista en la tabla users
+                'userId' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-        ]);
+            [
+                'name' => 'Producto 6',
+                'description' => 'Descripción del producto 6.',
+                'image' => 'path/to/image6.jpg',
+                'quantity' => 20,
+                'price' => 70.00,
+                'category_id' => 4,
+                'status' => 1,
+                'userId' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Producto 7',
+                'description' => 'Descripción del producto 7.',
+                'image' => 'path/to/image7.jpg',
+                'quantity' => 45,
+                'price' => 65.00,
+                'category_id' => 1,
+                'status' => 1,
+                'userId' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Producto 8',
+                'description' => 'Descripción del producto 8.',
+                'image' => 'path/to/image8.jpg',
+                'quantity' => 12,
+                'price' => 110.00,
+                'category_id' => 3,
+                'status' => 1,
+                'userId' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Producto 9',
+                'description' => 'Descripción del producto 9.',
+                'image' => 'path/to/image9.jpg',
+                'quantity' => 8,
+                'price' => 150.00,
+                'category_id' => 2,
+                'status' => 1,
+                'userId' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Producto 10',
+                'description' => 'Descripción del producto 10.',
+                'image' => 'path/to/image10.jpg',
+                'quantity' => 5,
+                'price' => 200.00,
+                'category_id' => 4,
+                'status' => 1,
+                'userId' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ];
+
+        foreach ($products as $product) {
+            DB::table('products')->insert($product);
+        }
     }
 }

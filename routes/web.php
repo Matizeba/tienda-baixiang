@@ -52,6 +52,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::patch('/products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    Route::get('/products/view', [ProductController::class, 'view'])->name('products.view');
+    Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
     Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
 
 
@@ -76,6 +78,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 Route::view('/', 'welcome');
+/*Route::get('/',function(){
+    return redirect()->route('login');
+});*/
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])

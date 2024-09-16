@@ -25,6 +25,35 @@ class ProductController extends Controller
         return view('livewire/products.index', compact('products', 'sortField', 'sortDirection'));
     }
 
+    public function view(Request $request)
+{
+    $categoryId = $request->input('category_id');
+    $searchTerm = $request->input('search_term');
+    $status = $request->input('status');
+
+    $query = Product::query(); // Elimina el filtro de estado aquí para manejarlo más tarde
+
+    if ($status !== null) {
+        $query->where('status', $status);
+    } else {
+        $query->whereIn('status', [0, 1]); // Muestra todos los estados si no se especifica
+    }
+
+    if ($categoryId) {
+        $query->where('category_id', $categoryId);
+    }
+
+    if ($searchTerm) {
+        $query->where('name', 'like', '%' . $searchTerm . '%');
+    }
+
+    $products = $query->get();
+    $categories = Category::all(); // Asegúrate de pasar todas las categorías a la vista
+
+    return view('livewire.products.view', compact('products', 'categories', 'searchTerm', 'categoryId', 'status'));
+}
+
+
     public function create()
     {
         $categories = Category::all(); // Obtener todas las categorías
