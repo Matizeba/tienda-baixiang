@@ -8,6 +8,8 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\SaleDetail;
+use App\Services\PdfService;
+
 
 class SaleController extends Controller
 {
@@ -34,7 +36,9 @@ class SaleController extends Controller
         return view('livewire/sales.create', compact('products', 'customers'));
     }
 
-    public function store(Request $request)
+
+
+    public function store(Request $request, PdfService $pdfService)
     {
         // Validación de los datos de la venta
         $request->validate([
@@ -43,34 +47,32 @@ class SaleController extends Controller
             'products.*.id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
         ]);
-
+    
         // Iniciar una transacción
         DB::beginTransaction();
         try {
             // Crear la venta
             $sale = Sale::create([
-                'user_id' => auth()->id(), // Suponiendo que el usuario está autenticado
+                'user_id' => auth()->id(),
                 'customer_id' => $request->input('customer_id'),
-                'total_amount' => 0, // El total se actualizará más tarde
-                'status' => 'pending', // Puedes cambiar el estado según sea necesario
+                'total_amount' => 0,
+                'status' => 'pending',
             ]);
-
+    
             $totalAmount = 0;
-
+    
             foreach ($request->input('products') as $product) {
                 $productId = $product['id'];
                 $quantity = $product['quantity'];
                 $productModel = Product::findOrFail($productId);
-
-                // Verificar si hay suficiente stock
+    
                 if ($productModel->quantity < $quantity) {
                     throw new \Exception('Stock insuficiente para el producto: ' . $productModel->name);
                 }
-
+    
                 $price = $productModel->price;
                 $total = $price * $quantity;
-
-                // Crear detalles de la venta
+    
                 SaleDetail::create([
                     'sale_id' => $sale->id,
                     'product_id' => $productId,
@@ -78,27 +80,37 @@ class SaleController extends Controller
                     'price' => $price,
                     'total' => $total,
                 ]);
-
-                // Sumar el total a la venta
+    
                 $totalAmount += $total;
-
-                // Actualizar el stock del producto
                 $productModel->decrement('quantity', $quantity);
             }
-
-            // Actualizar el monto total de la venta
+    
             $sale->update(['total_amount' => $totalAmount]);
-
-            // Confirmar la transacción
+    
             DB::commit();
-
-            return redirect()->route('sales.index')->with('success', 'Venta creada exitosamente.');
+    
+            // Generar el PDF de la nota de venta
+            $pdf = $pdfService->generatePdf('livewire.sales.receipt', ['sale' => $sale]);
+    
+            // Devolver el PDF para su descarga
+            return response()->stream(
+                function () use ($pdf) {
+                    echo $pdf;
+                },
+                200,
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'attachment; filename="nota_de_venta_' . $sale->id . '.pdf"',
+                ]
+            );
+    
         } catch (\Exception $e) {
-            // Revertir la transacción en caso de error
             DB::rollBack();
             return back()->withErrors(['error' => 'Hubo un error al crear la venta. ' . $e->getMessage()])->withInput();
         }
     }
+    
+
 
     // Ejemplo de controlador para la vista 'edit'
     public function edit($id)

@@ -10,6 +10,7 @@
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.4",
         "livewire/volt": "^1.0",
+        "mpdf/mpdf": "^8.2",
         "phpoffice/phpspreadsheet": "^2.2"
     },
     "require-dev": {
