@@ -37,6 +37,7 @@
             <a href="{{ route('users.index') }}"><i class="fas fa-users"></i> Usuarios</a>
             <a href="{{route('clients.index')}}"><i class="fas fa-user-friends"></i> Clientes</a>
             <a href="{{route('products.index')}}"><i class="fas fa-box"></i> Productos</a>
+            <a href="{{route('categories.index')}}"><i class="fas fa-box"></i> Productos</a>
             <a href="#"><i class="fas fa-shopping-cart"></i> Ventas</a>
             <a href="#"><i class="fas fa-chart-line"></i> Reportes</a>
             <a href="#"><i class="fas fa-bell"></i> Alertas</a>
