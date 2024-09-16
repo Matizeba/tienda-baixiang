@@ -2,120 +2,117 @@
 
 @section('content')
 <div class="container">
-    <h2>Crear Venta</h2>
-    
-    <!-- Mostrar mensajes de éxito o error -->
-    @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
+    <h1 class="mb-4">Crear Venta</h1>
 
     <form action="{{ route('sales.store') }}" method="POST">
         @csrf
-        
-        <!-- Seleccionar vendedor -->
-        <div class="form-group">
-            <label for="user_id">Vendedor</label>
-            <select name="user_id" id="user_id" class="form-control" required>
-                <option value="">Seleccione un vendedor</option>
-                @foreach($users as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+
+        <!-- Selección del cliente -->
+        <div class="mb-3">
+            <label for="customer_id" class="form-label">Cliente</label>
+            <select id="customer_id" name="customer_id" class="form-select" required>
+                <option value="">Selecciona un cliente</option>
+                @foreach ($customers as $customer)
+                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                 @endforeach
             </select>
         </div>
 
-        <!-- Seleccionar cliente -->
-        <div class="form-group">
-            <label for="customer_id">Cliente</label>
-            <select name="customer_id" id="customer_id" class="form-control" required>
-                <option value="">Seleccione un cliente</option>
-                @foreach($users as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+        <!-- Tabla de productos -->
+        <table id="products-table" class="table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Fila de productos agregados aquí -->
+            </tbody>
+        </table>
+
+        <!-- Selección del producto -->
+        <div class="mb-3">
+            <label for="product-select" class="form-label">Agregar Producto</label>
+            <select id="product-select" class="form-select">
+                <option value="">Selecciona un producto</option>
+                @foreach ($products as $product)
+                    <option value="{{ $product->id }}" 
+                            data-price="{{ $product->price }}" 
+                            data-quantity="{{ $product->quantity }}">
+                        {{ $product->name }} (Disponible: {{ $product->quantity }})
+                    </option>
                 @endforeach
             </select>
+            <button type="button" id="add-product-btn" class="btn btn-secondary mt-2">Agregar Producto</button>
         </div>
 
-        <!-- Selección de productos y cantidad -->
-        <div class="form-group">
-            <label for="products">Productos</label>
-            <div id="product-list">
-                <!-- Productos seleccionados se mostrarán aquí -->
-            </div>
-            <div class="input-group mb-3">
-                <select id="product_id" class="form-control" required>
-                    <option value="">Seleccione un producto</option>
-                    @foreach($products as $product)
-                        <option value="{{ $product->id }}" data-price="{{ $product->price }}">
-                            {{ $product->name }} - {{ $product->price }} Bs
-                        </option>
-                    @endforeach
-                </select>
-                <input type="number" id="quantity" class="form-control" placeholder="Cantidad" min="1" required>
-                <div class="input-group-append">
-                    <button type="button" id="add-product" class="btn btn-primary">Agregar</button>
-                </div>
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-success">Guardar Venta</button>
+        <button type="submit" class="btn btn-primary">Guardar Venta</button>
     </form>
 </div>
 
+@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const productList = document.getElementById('product-list');
-    const productSelect = document.getElementById('product_id');
-    const quantityInput = document.getElementById('quantity');
-    const addProductButton = document.getElementById('add-product');
+document.addEventListener('DOMContentLoaded', function() {
+    const productSelect = document.getElementById('product-select');
+    const addProductBtn = document.getElementById('add-product-btn');
+    const productsTableBody = document.querySelector('#products-table tbody');
 
-    addProductButton.addEventListener('click', function () {
-        const productId = productSelect.value;
-        const quantity = quantityInput.value;
-        const productOption = productSelect.options[productSelect.selectedIndex];
-        const productName = productOption.text;
-        const productPrice = productOption.getAttribute('data-price');
-        
-        if (!productId || !quantity) {
-            alert('Por favor, seleccione un producto y una cantidad.');
+    addProductBtn.addEventListener('click', function() {
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const productId = selectedOption.value;
+        const productName = selectedOption.text;
+        const productPrice = selectedOption.getAttribute('data-price');
+        const productQuantity = selectedOption.getAttribute('data-quantity'); // Cantidad disponible
+
+        if (!productId) return;
+
+        // Verificar si el producto ya está en la tabla
+        const existingRow = Array.from(productsTableBody.rows).find(row => row.dataset.productId === productId);
+        if (existingRow) {
+            const quantityInput = existingRow.querySelector('input[name*="[quantity]"]');
+            const newQuantity = parseInt(quantityInput.value) + 1;
+
+            if (newQuantity <= productQuantity) {
+                quantityInput.value = newQuantity;
+            } else {
+                alert('No puedes agregar más de la cantidad disponible');
+            }
+
             return;
         }
 
-        const existingProduct = document.querySelector(`#product-${productId}`);
-        if (existingProduct) {
-            alert('El producto ya está en la lista.');
-            return;
-        }
-
-        const itemDiv = document.createElement('div');
-        itemDiv.id = `product-${productId}`;
-        itemDiv.className = 'mb-2';
-        itemDiv.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-                <span>${productName} - ${quantity} x ${productPrice} Bs</span>
-                <button type="button" class="btn btn-danger btn-sm remove-product" data-product-id="${productId}">Eliminar</button>
-            </div>
-            <input type="hidden" name="items[${productId}][product_id]" value="${productId}">
-            <input type="hidden" name="items[${productId}][quantity]" value="${quantity}">
+        // Crear una nueva fila en la tabla de productos
+        const row = document.createElement('tr');
+        row.dataset.productId = productId;
+        row.innerHTML = `
+            <td>${productName}</td>
+            <td>
+                <input type="number" name="products[${productsTableBody.rows.length}][quantity]" 
+                       value="1" min="1" max="${productQuantity}" 
+                       class="form-control" required>
+                <input type="hidden" name="products[${productsTableBody.rows.length}][id]" value="${productId}">
+            </td>
+            <td>${productPrice} Bs</td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm remove-product-btn">Eliminar</button>
+            </td>
         `;
 
-        productList.appendChild(itemDiv);
-        quantityInput.value = '';
-        productSelect.value = '';
+        productsTableBody.appendChild(row);
+
+        // Limpiar selección
+        productSelect.selectedIndex = 0;
     });
 
-    productList.addEventListener('click', function (event) {
-        if (event.target.classList.contains('remove-product')) {
-            const productId = event.target.getAttribute('data-product-id');
-            const itemDiv = document.getElementById(`product-${productId}`);
-            productList.removeChild(itemDiv);
+    productsTableBody.addEventListener('click', function(event) {
+        if (event.target.classList.contains('remove-product-btn')) {
+            event.target.closest('tr').remove();
         }
     });
 });
 </script>
+@endpush
 @endsection
