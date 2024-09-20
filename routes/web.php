@@ -56,7 +56,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/products/view', [ProductController::class, 'view'])->name('products.view');
     Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
     Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
-
+    
+    Route::get('/units', [ProductController::class, 'unitsIndex'])->name('units.index');
+    Route::get('/units/create', [ProductController::class, 'unitsCreate'])->name('units.create');
+    Route::post('/units', [ProductController::class, 'unitsStore'])->name('units.store');
+    Route::get('/units/{unit}/edit', [ProductController::class, 'unitsEdit'])->name('units.edit');
+    Route::put('/units/{unit}', [ProductController::class, 'unitsUpdate'])->name('units.update');
 
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');

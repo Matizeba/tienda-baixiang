@@ -17,7 +17,10 @@ class DatabaseSeeder extends Seeder
             UsersTableSeeder::class,
             CategorySeeder::class,
             ProductsSeeder::class,
-            SalesSeeder::class,
+            //SalesSeeder::class,
+            UnitsSeeder::class,
+            ProductUnitsSeeder::class,
+
             
         ]);
     }

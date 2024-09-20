@@ -12,7 +12,7 @@ class ProductObserver
      */
     public function creating(Product $product): void
     {
-        $product->userId = Auth::check() ? Auth::id() : 0; 
+        $product->user_id = Auth::check() ? Auth::id() : 0; 
     }
 
     /**
@@ -20,7 +20,7 @@ class ProductObserver
      */
     public function updating(Product $product): void
     {
-        $product->userId = Auth::check() ? Auth::id() : 0; 
+        $product->user_id = Auth::check() ? Auth::id() : 0; 
     }
 
     /**

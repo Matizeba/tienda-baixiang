@@ -40,16 +40,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="quantity">Cantidad</label>
-                    <input type="number" min="0" step="1" name="quantity" id="quantity" class="form-control" value="{{ old('quantity') }}" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="price">Precio</label>
-                    <input type="number" min="0" step="0.50" name="price" id="price" class="form-control" value="{{ old('price') }}" required>
-                </div>
-
-                <div class="form-group">
                     <label for="category">Categoría</label>
                     <select name="category_id" id="category_id" class="form-control" required>
                         <option value="">Selecciona una categoría</option>
@@ -59,12 +49,14 @@
                     </select>
                 </div>
 
-
-                <!-- Campo para subir imagen -->
                 <div class="form-group">
                     <label for="image">Imagen del Producto</label>
                     <input type="file" name="image" id="image" class="form-control-file" accept="image/*">
                 </div>
+
+                <h5>Unidades</h5>
+                <div id="unitsContainer"></div>
+                <button type="button" class="btn btn-primary" onclick="addUnit()">Agregar Unidad</button>
 
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmModal">
                     Registrar
@@ -89,10 +81,8 @@
                 <ul>
                     <li><strong>Nombre:</strong> <span id="modalName"></span></li>
                     <li><strong>Descripción:</strong> <span id="modalDescription"></span></li>
-                    <li><strong>Cantidad:</strong> <span id="modalQuantity"></span></li>
-                    <li><strong>Precio:</strong> <span id="modalPrice"></span></li>
                     <li><strong>Categoría:</strong> <span id="modalCategory"></span></li>
-                    <li><strong>Imagen:</strong> <span id="modalImage"></span></li> <!-- Imagen agregada -->
+                    <li><strong>Imagen:</strong> <span id="modalImage"></span></li>
                 </ul>
                 <p>¿Estás seguro de que deseas continuar?</p>
             </div>
@@ -105,29 +95,48 @@
 </div>
 
 <script>
+    let unitIndex = 0;
+
+    function addUnit() {
+        const unitsContainer = document.getElementById('unitsContainer');
+        const unitDiv = document.createElement('div');
+        unitDiv.classList.add('unit');
+        unitDiv.innerHTML = `
+            <select name="units[${unitIndex}][id]" required>
+                <option value="">Selecciona una unidad</option>
+                @foreach ($units as $unit) <!-- Suponiendo que tienes una lista de unidades -->
+                    <option value="{{ $unit->id }}">{{ $unit->name }} ({{ $unit->description }})</option>
+                @endforeach
+            </select>
+            <input type="number" name="units[${unitIndex}][price]" placeholder="Precio" required>
+            <input type="number" name="units[${unitIndex}][stock]" placeholder="Stock" required>
+            <button type="button" class="btn btn-danger" onclick="removeUnit(this)">Eliminar</button>
+        `;
+        unitsContainer.appendChild(unitDiv);
+        unitIndex++;
+    }
+
+    function removeUnit(button) {
+        button.parentElement.remove();
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // Cargar datos en el modal cuando se hace clic en "Registrar"
         const nameInput = document.getElementById('name');
         const descriptionInput = document.getElementById('description');
-        const quantityInput = document.getElementById('quantity');
-        const priceInput = document.getElementById('price');
-        const categoryInput = document.getElementById('category');
-        const imageInput = document.getElementById('image'); // Agregando la imagen
+        const categoryInput = document.getElementById('category_id');
+        const imageInput = document.getElementById('image');
 
         const modalName = document.getElementById('modalName');
         const modalDescription = document.getElementById('modalDescription');
-        const modalQuantity = document.getElementById('modalQuantity');
-        const modalPrice = document.getElementById('modalPrice');
         const modalCategory = document.getElementById('modalCategory');
-        const modalImage = document.getElementById('modalImage'); // Modal para la imagen
+        const modalImage = document.getElementById('modalImage');
 
         document.querySelector('[data-target="#confirmModal"]').addEventListener('click', function() {
             modalName.textContent = nameInput.value;
             modalDescription.textContent = descriptionInput.value;
-            modalQuantity.textContent = quantityInput.value;
-            modalPrice.textContent = priceInput.value;
-            modalCategory.textContent = categoryInput.options[categoryInput.selectedIndex].text; // Mostrar nombre de la categoría seleccionada
-            modalImage.textContent = imageInput.files.length ? imageInput.files[0].name : 'No seleccionada'; // Mostrar nombre de archivo de la imagen
+            modalCategory.textContent = categoryInput.options[categoryInput.selectedIndex].text;
+            modalImage.textContent = imageInput.files.length ? imageInput.files[0].name : 'No seleccionada';
         });
 
         // Enviar el formulario al confirmar

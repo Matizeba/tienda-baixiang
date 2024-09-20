@@ -37,7 +37,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('product_unit', function (Blueprint $table) {
+        Schema::create('product_units', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade'); // Relación con productos
             $table->foreignId('unit_id')->constrained('units')->onDelete('cascade'); // Relación con unidades
