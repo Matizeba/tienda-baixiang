@@ -15,7 +15,7 @@ class SaleController extends Controller
 {
     public function index(Request $request)
 {
-    // Cargar ventas con detalles y agregar paginación (10 elementos por página)
+    
     $sales = Sale::with('user', 'customer', 'details.product')->paginate(5);
 
     return view('livewire.sales.index', compact('sales'));

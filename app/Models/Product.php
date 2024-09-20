@@ -8,19 +8,25 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'name',
         'description',
         'image',
-        'quantity',
-        'price',
         'category_id',
         'status',
-        'userId',
+        'user_id'
     ];
+
     public function category()
     {
-        return $this->belongsTo(Category::class); 
+        return $this->belongsTo(Category::class);
+    }
+
+    public function units()
+    {
+        return $this->belongsToMany(Unit::class, 'product_unit')
+                    ->withPivot('price', 'stock')
+                    ->withTimestamps();
     }
 }

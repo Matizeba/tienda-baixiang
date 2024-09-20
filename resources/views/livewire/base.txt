@@ -1,25 +1,4 @@
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique(); 
-            $table->string('description');
-            $table->tinyInteger('userId')->default(0);
-            $table->tinyInteger('status')->default(1);
-            $table->timestamps();
-        });
-        Schema::create('products', function (Blueprint $table) {
+Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
@@ -30,14 +9,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('units', function (Blueprint $table) {
+Schema::create('units', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Nombre del tipo de unidad (unidad, paquete, caja, etc.)
             $table->text('description')->nullable(); // Descripción para especificar cantidad por paquete, caja, etc.
             $table->timestamps();
         });
 
-        Schema::create('product_unit', function (Blueprint $table) {
+Schema::create('product_unit', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade'); // Relación con productos
             $table->foreignId('unit_id')->constrained('units')->onDelete('cascade'); // Relación con unidades
@@ -46,14 +25,11 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('products');
-    }
-};
+Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique(); 
+            $table->string('description');
+            $table->tinyInteger('userId')->default(0);
+            $table->tinyInteger('status')->default(1);
+            $table->timestamps();
+        });
