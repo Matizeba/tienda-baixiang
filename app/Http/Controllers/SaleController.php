@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Sale;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\Unit;
+use App\Models\ProductUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\SaleDetail;
@@ -22,96 +24,110 @@ class SaleController extends Controller
 }
 
 
-    public function show($id)
-    {
-        // Mostrar detalles de la venta
-        $sale = Sale::with('details.product')->findOrFail($id);
-        return view('livewire.sales.show', compact('sale'));
-    }
+public function show($id)
+{
+    // Mostrar detalles de la venta
+    $sale = Sale::with(['user', 'customer', 'details.product', 'details.unit'])->findOrFail($id);
+    
+    // Variables para obtener la información requerida
+    $productName = $sale->details->pluck('product.name'); // Nombres de los productos
+    $unitName = $sale->details->pluck('unit.name'); // Nombres de las unidades
+    $productPrice = $sale->details->pluck('price'); // Precios de los productos
+
+    // Retorna la vista con los datos de la venta
+    return view('livewire.sales.show', compact('sale', 'productName', 'unitName', 'productPrice'));
+}
+
+
+
+
+
 
     public function create()
-    {
-        // Obtener productos y clientes para la vista de creación
-        $products = Product::all();
-        $customers = User::where('role', 3)->get(); // Clientes tienen el role 3
-
-        return view('livewire/sales.create', compact('products', 'customers'));
-    }
-
-
-
-    public function store(Request $request, PdfService $pdfService)
-    {
-        // Validación de los datos de la venta
-        $request->validate([
-            'customer_id' => 'required|exists:users,id',
-            'products' => 'required|array',
-            'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
-        ]);
+{
+    // Obtener todos los productos
+    $products = Product::with('productUnits.unit')->get();
     
-        // Iniciar una transacción
-        DB::beginTransaction();
-        try {
-            // Crear la venta
-            $sale = Sale::create([
-                'user_id' => auth()->id(),
-                'customer_id' => $request->input('customer_id'),
-                'total_amount' => 0,
-                'status' => 'pending',
-            ]);
-    
-            $totalAmount = 0;
-    
-            foreach ($request->input('products') as $product) {
-                $productId = $product['id'];
-                $quantity = $product['quantity'];
-                $productModel = Product::findOrFail($productId);
-    
-                if ($productModel->quantity < $quantity) {
-                    throw new \Exception('Stock insuficiente para el producto: ' . $productModel->name);
+    // Obtener todos los clientes con rol 3
+    $customers = User::where('role', 3)->get();
+
+    return view('livewire/sales.create', compact('products', 'customers'));
+}
+
+
+public function getUnits($id)
+{
+    $productUnits = ProductUnit::with('unit')->where('product_id', $id)->get();
+
+    return response()->json($productUnits);
+}
+
+public function store(Request $request)
+{
+    $validatedData = $request->validate([
+        'customer_id' => 'required|exists:users,id',
+        'products' => 'required|array',
+    ]);
+
+    // Iniciar una transacción
+    DB::beginTransaction();
+    try {
+        // Crear la venta
+        $sale = new Sale();
+        $sale->user_id = auth()->id();
+        $sale->customer_id = $validatedData['customer_id'];
+        $sale->total_amount = 0; // Asigna el total más tarde
+        $sale->status = 'completed'; // Cambiar el estado a 'completed' al finalizar
+        $sale->save();
+
+        // Procesar cada producto
+        $totalAmount = 0;
+
+        foreach ($validatedData['products'] as $productData) {
+            $productData = json_decode($productData, true); // Decodificar el JSON
+
+            foreach ($productData as $item) {
+                // Crear el detalle de la venta
+                $saleDetail = new SaleDetail();
+                $saleDetail->sale_id = $sale->id;
+                $saleDetail->product_id = $item['id']; // ID del producto
+                $saleDetail->unit_id = $item['unitId']; // Asegúrate de que unitId esté presente
+                $saleDetail->quantity = $item['quantity'];
+                $saleDetail->price = $item['price'];
+                $saleDetail->total = $item['price'] * $item['quantity'];
+                $saleDetail->save();
+
+                // Actualizar el monto total
+                $totalAmount += $saleDetail->total;
+
+                // Actualizar el stock del producto
+                $productUnit = ProductUnit::where('product_id', $item['id'])
+                    ->where('unit_id', $item['unitId'])
+                    ->first();
+
+                if ($productUnit) {
+                    $productUnit->stock -= $item['quantity'];
+                    $productUnit->save();
                 }
-    
-                $price = $productModel->price;
-                $total = $price * $quantity;
-    
-                SaleDetail::create([
-                    'sale_id' => $sale->id,
-                    'product_id' => $productId,
-                    'quantity' => $quantity,
-                    'price' => $price,
-                    'total' => $total,
-                ]);
-    
-                $totalAmount += $total;
-                $productModel->decrement('quantity', $quantity);
             }
-    
-            $sale->update(['total_amount' => $totalAmount]);
-    
-            DB::commit();
-    
-            // Generar el PDF de la nota de venta
-            $pdf = $pdfService->generatePdf('livewire.sales.receipt', ['sale' => $sale]);
-    
-            // Devolver el PDF para su descarga
-            return response()->stream(
-                function () use ($pdf) {
-                    echo $pdf;
-                },
-                200,
-                [
-                    'Content-Type' => 'application/pdf',
-                    'Content-Disposition' => 'attachment; filename="nota_de_venta_' . $sale->id . '.pdf"',
-                ]
-            );
-    
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Hubo un error al crear la venta. ' . $e->getMessage()])->withInput();
         }
+
+        // Actualizar el monto total de la venta
+        $sale->total_amount = $totalAmount;
+        $sale->save();
+
+        // Confirmar la transacción
+        DB::commit();
+
+        return redirect()->route('sales.index')->with('success', 'Venta creada con éxito.');
+    } catch (\Exception $e) {
+        // Deshacer la transacción si algo falla
+        DB::rollBack();
+        return redirect()->route('sales.index')->with('error', 'Error al crear la venta: ' . $e->getMessage());
     }
-    
+}
+
+
 
 
     // Ejemplo de controlador para la vista 'edit'

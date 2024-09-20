@@ -91,15 +91,16 @@ Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
 // Mostrar los detalles de una venta específica
 
 
-
-Route::get('sales', [SaleController::class, 'index'])->name('sales.index'); // Listar todas las ventas
-Route::get('sales/create', [SaleController::class, 'create'])->name('sales.create'); // Mostrar formulario de creación
-Route::post('sales', [SaleController::class, 'store'])->name('sales.store'); // Almacenar nueva venta
-Route::get('sales/{id}/edit', [SaleController::class, 'edit'])->name('sales.edit'); // Mostrar formulario de edición
-Route::put('sales/{id}', [SaleController::class, 'update'])->name('sales.update'); // Actualizar venta existente
-Route::delete('sales/{id}', [SaleController::class, 'destroy'])->name('sales.destroy'); // Eliminar venta
+// Eliminar venta
 Route::get('/sales/{id}', [SaleController::class, 'show'])->name('sales.show');
-Route::post('/products/details', [ProductController::class, 'getDetails']);
+Route::get('/sales/get-units', [SaleController::class, 'getUnits'])->name('sales.getUnits');
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
+    Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
+    Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
+});
 
 
 

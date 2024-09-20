@@ -17,4 +17,8 @@ class SaleDetail extends Model
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id'); // Asegúrate de que 'unit_id' es el nombre correcto de la columna
+    }
 }

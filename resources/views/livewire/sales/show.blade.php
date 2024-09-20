@@ -1,5 +1,3 @@
-<!-- resources/views/sales/show.blade.php -->
-
 @extends('layouts.app')
 
 @section('breadcrumbs')
@@ -32,18 +30,24 @@
                     <thead>
                         <tr>
                             <th scope="col"><i class="fas fa-box"></i> Producto</th>
+                            <th scope="col"><i class="fas fa-cube"></i> Unidad</th>
+                            <th scope="col"><i class="fas fa-info-circle"></i> Descripción</th>
                             <th scope="col"><i class="fas fa-hashtag"></i> Cantidad</th>
                             <th scope="col"><i class="fas fa-dollar-sign"></i> Precio</th>
                             <th scope="col"><i class="fas fa-dollar-sign"></i> Total</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($sale->details as $detail)
                             <tr>
                                 <td>{{ $detail->product->name }}</td>
+                                <td>{{ $detail->unit ? $detail->unit->name : 'Sin unidad' }}</td>
+                                <td>{{ $detail->unit ? $detail->unit->description : 'Sin descripción' }}</td>
                                 <td>{{ $detail->quantity }}</td>
                                 <td>{{ $detail->price }} Bs</td>
                                 <td>{{ $detail->total }} Bs</td>
+                               
                             </tr>
                         @endforeach
                     </tbody>

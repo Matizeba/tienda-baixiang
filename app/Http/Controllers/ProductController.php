@@ -63,15 +63,11 @@ class ProductController extends Controller
 
     public function create()
     {
-        // Obtener las categorías y unidades disponibles para el formulario
-        $categories = Category::all(); // Suponiendo que tienes un modelo Category
-        $units = Unit::all(); // Suponiendo que tienes un modelo Unit
+        $categories = Category::all(); 
+        $units = Unit::all(); 
 
         return view('livewire/products.create', compact('categories', 'units'));
     }
-
-
-    
 
     public function edit($id)
     {
@@ -126,7 +122,6 @@ class ProductController extends Controller
         $imagePath = $product->image; // Mantener la imagen actual si no se subió una nueva
     }
     
-    // Actualizar el producto
     $product->update([
         'name' => $request->name,
         'description' => $request->description,

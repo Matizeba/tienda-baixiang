@@ -56,7 +56,7 @@
                                     </a>
 
                                     @if ($sale->status != 'completed' && (auth()->user()->role == 1 || auth()->id() == $sale->user_id))
-                                        <a href="{{ route('sales.edit', $sale->id) }}" class="btn btn-secondary btn-sm">
+                                       
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     @endif

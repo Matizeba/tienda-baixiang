@@ -1,3 +1,11 @@
+<style>
+    .modalSale {
+        max-width: 65%;
+        width: auto;
+    }
+</style>
+dd($request->all());
+
 @extends('layouts.app')
 
 @section('content')
@@ -7,7 +15,7 @@
     <div class="row mb-3">
         <div class="col-md-6">
             <label for="customerSelect" class="form-label">Seleccionar Cliente</label>
-            <select id="customerSelect" class="form-select" required>
+            <select id="customerSelect" class="form-select">
                 <option value="">Seleccione un cliente</option>
                 @foreach($customers as $customer)
                     <option value="{{ $customer->id }}">{{ $customer->name }}</option>
@@ -59,7 +67,7 @@
                     <p>Descripción: <span id="confirmDescription"></span></p>
                     <p>Precio: <span id="confirmPrice"></span></p>
                     <label for="confirmQuantityInput" class="form-label">Cantidad:</label>
-                    <input type="number" id="confirmQuantityInput" class="form-control" min="1" value="1">
+                    <input type="number" id="confirmQuantityInput" class="form-control" min="1" value="1" oninput="checkQuantity(this)">
                     <p>Total: <span id="confirmTotal"></span></p>
                 </div>
                 <div class="modal-footer">
@@ -105,13 +113,6 @@
         </div>
     </div>
 
-    <!-- Formulario oculto para gestionar el carrito -->
-    <form id="cartForm" action="{{ route('sales.store') }}" method="POST" style="display: none;">
-        @csrf
-        <input type="hidden" name="customer_id" id="customer_id">
-        <input type="hidden" name="products[]" id="productsInput">
-    </form>
-
 </div>
 
 <script>
@@ -135,11 +136,11 @@
                     var addButton = document.createElement('button');
                     addButton.innerText = 'Añadir';
                     addButton.className = 'btn btn-success btn-sm';
-                    addButton.onclick = (function(unitId, price, productId, productName, description, stock) {
+                    addButton.onclick = (function(unit, price, productName, description, stock) {
                         return function() {
-                            openConfirmModal(unitId, price, productId, productName, description, stock);
+                            openConfirmModal(unit, price, productName, description, stock);
                         };
-                    })("{{ $productUnit->unit->id }}", "{{ $productUnit->price }}", "{{ $product->id }}", "{{ $product->name }}", "{{ $productUnit->unit->description }}", "{{ $productUnit->stock }}");
+                    })("{{ $productUnit->unit->name }}", "{{ $productUnit->price }}", "{{ $product->name }}", "{{ $productUnit->unit->description }}", "{{ $productUnit->stock }}");
                     var cell = row.insertCell(4);
                     cell.appendChild(addButton);
                 @endforeach
@@ -147,7 +148,7 @@
         @endforeach
     }
 
-    function openConfirmModal(unitId, price, productId, productName, description, stock) {
+    function openConfirmModal(unit, price, productName, description, stock) {
         document.getElementById('confirmProductName').innerText = productName;
         document.getElementById('confirmDescription').innerText = description;
         document.getElementById('confirmPrice').innerText = price;
@@ -159,26 +160,29 @@
 
         // Manejar el cambio en el input para actualizar el total
         quantityInput.oninput = function() {
-            var quantity = parseInt(this.value);
-            if (quantity > stock) {
-                this.value = stock; // No permitir más que el stock disponible
-                alert("No se puede seleccionar más de " + stock + " unidades.");
-            }
-            updateTotal(this.value, price);
+            checkQuantity(this, stock);
+            updateTotal(quantityInput.value, price);
         };
 
         // Guardar el producto en el botón de añadir al carrito
         document.getElementById('addToCartButton').onclick = function() {
-            var quantity = parseInt(quantityInput.value);
-            if (quantity > stock) {
-                alert("No se puede añadir más de " + stock + " unidades.");
-                return;
+            if (isProductInCart(productName, unit)) {
+                alert("Este producto ya está en el carrito.");
+            } else {
+                addToCart(unit, price, quantityInput.value, productName, description);
+                $('#confirmQuantityModal').modal('hide'); // Cerrar el modal
             }
-            addToCart(productId, unitId, price, quantity, productName, description);
-            $('#confirmQuantityModal').modal('hide'); // Cerrar el modal
         };
 
         $('#confirmQuantityModal').modal('show'); // Mostrar el modal
+    }
+
+    function checkQuantity(input, stock) {
+        var quantity = parseInt(input.value);
+        if (quantity > stock) {
+            input.value = stock; // No permitir más que el stock disponible
+            alert("No se puede seleccionar más de " + stock + " unidades.");
+        }
     }
 
     function updateTotal(quantity, price) {
@@ -186,15 +190,9 @@
         document.getElementById('confirmTotal').innerText = total.toFixed(2); // Mostrar el total formateado
     }
 
-    function addToCart(id, unitId, price, quantity, productName, description) {
+    function addToCart(unit, price, quantity, productName, description) {
         // Añadir el artículo al carrito
-        cart.push({ 
-            id: id, 
-            unitId: unitId, // Ahora guardamos el ID de la unidad
-            description: description, 
-            price: price, 
-            quantity: quantity 
-        });
+        cart.push({ productName: productName, unit: unit, description: description, price: price, quantity: quantity });
 
         // Actualizar la tabla del carrito
         updateCartTable();
@@ -204,60 +202,59 @@
     function updateCartTable() {
         var cartTableBody = document.getElementById('cartTable').getElementsByTagName('tbody')[0];
         cartTableBody.innerHTML = ''; // Limpiar la tabla
-
         var grandTotal = 0;
 
-        cart.forEach(function(item) {
+        cart.forEach((item, index) => {
             var row = cartTableBody.insertRow();
-            row.insertCell(0).innerText = item.id; // Nombre del producto
-            row.insertCell(1).innerText = item.unitId; // ID de la unidad
+            row.insertCell(0).innerText = item.productName;
+            row.insertCell(1).innerText = item.unit;
             row.insertCell(2).innerText = item.description;
             row.insertCell(3).innerText = item.price;
             row.insertCell(4).innerText = item.quantity;
 
             var total = item.price * item.quantity;
-            row.insertCell(5).innerText = total.toFixed(2);
+            grandTotal += total;
+            row.insertCell(5).innerText = total.toFixed(2); // Total para este producto
 
-            var deleteButton = document.createElement('button');
-            deleteButton.innerText = 'Eliminar';
-            deleteButton.className = 'btn btn-danger btn-sm';
-            deleteButton.onclick = function() {
-                removeFromCart(item.id);
+            // Agregar botón para eliminar del carrito
+            var removeButton = document.createElement('button');
+            removeButton.innerText = 'Eliminar';
+            removeButton.className = 'btn btn-danger btn-sm';
+            removeButton.onclick = function() {
+                removeFromCart(index);
             };
-            var cell = row.insertCell(6);
-            cell.appendChild(deleteButton);
-
-            grandTotal += total; // Sumar al total general
+            row.insertCell(6).appendChild(removeButton);
         });
 
-        document.getElementById('grandTotal').innerText = grandTotal.toFixed(2); // Mostrar el total general
+        document.getElementById('grandTotal').innerText = grandTotal.toFixed(2); // Mostrar total general
     }
 
-    function updateCartCount() {
-        document.getElementById('cartCount').innerText = cart.length; // Actualizar el contador del carrito
-    }
-
-    function removeFromCart(id) {
-        cart = cart.filter(item => item.id !== id); // Filtrar el carrito
+    function removeFromCart(index) {
+        cart.splice(index, 1); // Eliminar del carrito
         updateCartTable(); // Actualizar la tabla
         updateCartCount(); // Actualizar el contador
     }
 
+    function isProductInCart(productName, unit) {
+        return cart.some(item => item.productName === productName && item.unit === unit);
+    }
+
+    function updateCartCount() {
+        document.getElementById('cartCount').innerText = cart.length;
+    }
+
     document.getElementById('confirmSaleButton').onclick = function() {
-        // Guardar el ID del cliente
-        document.getElementById('customer_id').value = document.getElementById('customerSelect').value;
+        if (cart.length === 0) {
+            alert("El carrito está vacío. No se puede confirmar la venta.");
+            return;
+        }
 
-        // Guardar los productos en un campo oculto
-        document.getElementById('productsInput').value = JSON.stringify(cart);
-
-        // Enviar el formulario
-        document.getElementById('cartForm').submit();
+        // Aquí puedes agregar el código para enviar los datos de la venta al servidor
+        alert("Venta confirmada con éxito!"); // Mensaje de éxito
+        cart = []; // Vaciar el carrito
+        updateCartTable(); // Actualizar tabla
+        updateCartCount(); // Actualizar contador
+        $('#cartModal').modal('hide'); // Cerrar modal del carrito
     };
 </script>
-<style>
-    .modalSale {
-        max-width: 65%;
-        width: auto;
-    }
-</style>
 @endsection
