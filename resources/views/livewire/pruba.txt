@@ -5,6 +5,16 @@
     }
 </style>
 dd($request->all());
+dd([
+        'sale' => $sale,
+        'products' => $products,
+        'customers' => $customers
+    ]);
+    <form id="editCartForm" action="{{ route('sales.update', $sale->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                       
 
 @extends('layouts.app')
 

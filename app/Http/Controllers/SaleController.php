@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\SaleDetail;
 use App\Services\PdfService;
+use PDF; 
+
 
 
 class SaleController extends Controller
@@ -29,21 +31,26 @@ public function show($id)
     // Mostrar detalles de la venta
     $sale = Sale::with(['user', 'customer', 'details.product', 'details.unit'])->findOrFail($id);
     
-    // Variables para obtener la información requerida
-    $productName = $sale->details->pluck('product.name'); // Nombres de los productos
-    $unitName = $sale->details->pluck('unit.name'); // Nombres de las unidades
-    $productPrice = $sale->details->pluck('price'); // Precios de los productos
+    return view('livewire.sales.show', compact('sale'));
+}
 
-    // Retorna la vista con los datos de la venta
-    return view('livewire.sales.show', compact('sale', 'productName', 'unitName', 'productPrice'));
+public function generatePDF($id)
+{
+    $sale = Sale::with(['user', 'customer', 'details.product', 'details.unit'])->findOrFail($id);
+    $pdf = PDF::loadView('pdf.sale', compact('sale'));
+    return $pdf->download('venta_'.$sale->id.'.pdf');
+}
+public function changeStatus(Request $request, $id)
+{
+    $sale = Sale::findOrFail($id);
+    $sale->status = $request->input('status');
+    $sale->save();
+
+    return redirect()->route('sales.show', $id)->with('success', 'Estado de la venta actualizado con éxito.');
 }
 
 
-
-
-
-
-    public function create()
+public function create()
 {
     // Obtener todos los productos
     $products = Product::with('productUnits.unit')->get();
@@ -77,7 +84,7 @@ public function store(Request $request)
         $sale->user_id = auth()->id();
         $sale->customer_id = $validatedData['customer_id'];
         $sale->total_amount = 0; // Asigna el total más tarde
-        $sale->status = 'completed'; // Cambiar el estado a 'completed' al finalizar
+        $sale->status = 'pending'; // Cambiar el estado a 'completed' al finalizar
         $sale->save();
 
         // Procesar cada producto
@@ -126,123 +133,158 @@ public function store(Request $request)
         return redirect()->route('sales.index')->with('error', 'Error al crear la venta: ' . $e->getMessage());
     }
 }
-
-
-
-
-    // Ejemplo de controlador para la vista 'edit'
-    public function edit($id)
-    {
-        $sale = Sale::with('saleDetails.product')->find($id);
-        if (!$sale) {
-            return redirect()->route('sales.index')->with('error', 'Venta no encontrada.');
-        }
-
-        // Obtener productos y clientes
-        $products = Product::all();
-        $customers = \App\Models\User::where('role', 3)->get(); // Obtener clientes (usuarios con role 3)
-
-        return view('livewire/sales.edit', compact('sale', 'products', 'customers'));
-    }
-
-    // Método para actualizar una venta
-    public function update(Request $request, $id)
+public function edit($id)
 {
-    $sale = Sale::find($id);
-    if (!$sale) {
-        return redirect()->route('sales.index')->with('error', 'Venta no encontrada.');
-    }
+    $sale = Sale::with(['user', 'customer', 'details.product', 'details.unit'])->findOrFail($id);
+    $customers = User::where('role', 3)->get();
+    $products = Product::with('productUnits.unit')->get();
 
-    // Validar y actualizar venta
-    $validated = $request->validate([
-        'customer_id' => 'required|exists:users,id',
-        'products' => 'required|array',
-        'products.*.quantity' => 'required|integer|min:1',
-        'products.*.id' => 'required|exists:products,id',
-    ]);
+    // Crear un arreglo con los detalles de la venta
+    $cartDetails = $sale->details->map(function($detail) {
+        return [
+            'id' => $detail->product->id,
+            'unitId' => $detail->unit->id ?? null,
+            'productName' => $detail->product->name,
+            'description' => $detail->unit->description ?? 'Sin descripción',
+            'price' => (float)$detail->price,
+            'quantity' => (int)$detail->quantity
+        ];
+    })->toArray();
 
-    // Obtener detalles anteriores de la venta para restaurar stock
-    $previousDetails = $sale->saleDetails()->get();
+    // Datos de la venta
+    $saleData = [
+        'saleId' => $sale->id,
+        'userId' => $sale->user_id,
+        'customerId' => $sale->customer_id,
+        'totalAmount' => (float)$sale->total_amount,
+        'status' => $sale->status
+    ];
 
-    // Restaurar el stock anterior
-    foreach ($previousDetails as $detail) {
-        $product = Product::find($detail->product_id);
-        $product->increment('quantity', $detail->quantity);
-    }
 
-    // Actualizar información básica de la venta
-    $sale->customer_id = $validated['customer_id'];
-    $sale->save();
-
-    // Eliminar detalles de venta antiguos
-    $sale->saleDetails()->delete();
-
-    // Inicializar el monto total
-    $totalAmount = 0;
-
-    // Crear nuevos detalles de venta y calcular el monto total
-    foreach ($validated['products'] as $product) {
-        $productId = $product['id'];
-        $quantity = $product['quantity'];
-        $productModel = Product::findOrFail($productId);
-        $price = $productModel->price;
-        $total = $price * $quantity;
-
-        // Crear detalle de venta
-        SaleDetail::create([
-            'sale_id' => $sale->id,
-            'product_id' => $productId,
-            'quantity' => $quantity,
-            'price' => $price,
-            'total' => $total,
-        ]);
-
-        // Acumulación del monto total
-        $totalAmount += $total;
-
-        // Reducir el stock del producto
-        $productModel->decrement('quantity', $quantity);
-    }
-
-    // Actualizar el monto total de la venta
-    $sale->update(['total_amount' => $totalAmount]);
-
-    return redirect()->route('sales.index')->with('success', 'Venta actualizada con éxito.');
+    return view('livewire/sales.edit', compact('sale', 'customers', 'products', 'cartDetails', 'saleData'));
 }
-
-public function destroy($id)
+public function update(Request $request, $id)
 {
-    $sale = Sale::find($id);
-    if (!$sale) {
-        return redirect()->route('sales.index')->with('error', 'Venta no encontrada.');
-    }
-
-    // Iniciar una transacción
     DB::beginTransaction();
+
     try {
-        // Recuperar detalles de la venta para restaurar el stock
-        foreach ($sale->saleDetails as $detail) {
-            $product = Product::find($detail->product_id);
-            $product->increment('quantity', $detail->quantity);
+        $sale = Sale::with('details')->findOrFail($id);
+
+        $oldTotalAmount = $sale->total_amount;
+        $sale->customer_id = $request->input('customer_id');
+        $sale->user_id = $request->input('user_id');
+
+        // Decodifica el carrito recibido
+        $cart = json_decode($request->input('cart'), true);
+
+        // Crear un arreglo para almacenar los detalles ya procesados
+        $processedDetails = [];
+
+        // Recorrer el carrito y manejar cada producto
+        foreach ($cart as $item) {
+            // Buscar si ya existe un detalle con el mismo product_id y unit_id
+            $existingDetail = $sale->details->first(function($detail) use ($item) {
+                return $detail->product_id == $item['id'] && $detail->unit_id == $item['unitId'];
+            });
+
+            if ($existingDetail) {
+                // Si el producto y unidad ya existen, verificar la cantidad
+                $oldQuantity = $existingDetail->quantity;
+
+                // Actualizar la cantidad y el total
+                $existingDetail->quantity = $item['quantity'];
+                $existingDetail->total = $existingDetail->quantity * $existingDetail->price;
+                $existingDetail->save();
+
+                // Ajustar el stock
+                $productUnit = ProductUnit::where('product_id', $item['id'])
+                                          ->where('unit_id', $item['unitId'])
+                                          ->first();
+                if ($productUnit) {
+                    if ($item['quantity'] > $oldQuantity) {
+                        // Incrementar stock
+                        $difference = $item['quantity'] - $oldQuantity;
+                        $productUnit->stock -= $difference;
+                    } elseif ($item['quantity'] < $oldQuantity) {
+                        // Reducir stock
+                        $difference = $oldQuantity - $item['quantity'];
+                        $productUnit->stock += $difference;
+                    }
+                    $productUnit->save();
+                }
+            } else {
+                // Si no existe, agregar un nuevo detalle de venta
+                $sale->details()->create([
+                    'product_id' => $item['id'],
+                    'unit_id' => $item['unitId'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'total' => $item['quantity'] * $item['price'],
+                ]);
+
+                // Ajustar el stock al agregar un nuevo detalle
+                $productUnit = ProductUnit::where('product_id', $item['id'])
+                                          ->where('unit_id', $item['unitId'])
+                                          ->first();
+                if ($productUnit) {
+                    $productUnit->stock -= $item['quantity'];
+                    $productUnit->save();
+                }
+            }
+
+            // Agregar el detalle procesado a la lista
+            $processedDetails[] = $item;
         }
 
-        // Eliminar los detalles de la venta
-        $sale->saleDetails()->delete();
+        // Eliminar detalles de productos que no están en el carrito
+        foreach ($sale->details as $detail) {
+            $existsInCart = collect($processedDetails)->first(function($item) use ($detail) {
+                return $item['id'] == $detail->product_id && $item['unitId'] == $detail->unit_id;
+            });
 
-        // Eliminar la venta
-        $sale->delete();
+            if (!$existsInCart) {
+                // Ajustar el stock al eliminar un detalle
+                $productUnit = ProductUnit::where('product_id', $detail->product_id)
+                                          ->where('unit_id', $detail->unit_id)
+                                          ->first();
+                if ($productUnit) {
+                    $productUnit->stock += $detail->quantity;
+                    $productUnit->save();
+                }
 
-        // Confirmar la transacción
-        DB::commit();
+                $detail->delete();
+            }
+        }
 
-        return redirect()->route('sales.index')->with('success', 'Venta eliminada con éxito.');
+        // Recalcular el total de la venta
+        $newTotalAmount = $sale->details->sum('total');
+
+        // Actualizar el total_amount solo si ha cambiado
+        if ($newTotalAmount !== $oldTotalAmount) {
+            $sale->total_amount = $newTotalAmount;
+        }
+
+        $sale->save();
+
+        DB::commit(); // Confirmar la transacción
+
+        return redirect()->route('sales.index')->with('success', 'Venta actualizada con éxito.');
+
     } catch (\Exception $e) {
-        // Revertir la transacción en caso de error
-        DB::rollBack();
-        return redirect()->route('sales.index')->with('error', 'Hubo un error al eliminar la venta. ' . $e->getMessage());
+        DB::rollBack(); // Revertir la transacción en caso de error
+        return redirect()->route('sales.index')->with('error', 'Error al actualizar la venta: ' . $e->getMessage());
     }
 }
+public function printReceipt($id)
+{
+    // Cargar la venta con sus detalles
+    $sale = Sale::with(['user', 'customer', 'details.product', 'details.unit'])->findOrFail($id);
 
+    // Generar la vista de recibo como PDF
+    $pdf = PDF::loadView('livewire.sales.receipt', compact('sale'));
+
+    // Descargar el PDF directamente
+    return $pdf->download('recibo-venta-' . $sale->id . '.pdf');
 }
 
-
+}

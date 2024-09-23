@@ -72,6 +72,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     Route::get('/categories/export', [CategoryController::class, 'exportToExcel'])->name('categories.export');
 
+    Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
+    Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
+    Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
+    Route::delete('/sales/{id}', [SaleController::class, 'destroy'])->name('sales.destroy');
+    Route::get('/sales/{id}', [SaleController::class, 'show'])->name('sales.show');
+    Route::get('/sales/get-units', [SaleController::class, 'getUnits'])->name('sales.getUnits');
+    Route::get('/sales/{id}/edit', [SaleController::class, 'edit'])->name('sales.edit');
+    Route::put('/sales/{id}', [SaleController::class, 'update'])->name('sales.update');
+    Route::get('sales/{id}/receipt', [SaleController::class, 'printReceipt'])->name('sales.receipt');
+    Route::post('/sales/{id}/change-status', [SaleController::class, 'changeStatus'])->name('sales.changeStatus');
+
+
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -79,27 +91,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-// Mostrar la lista de ventas
-Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
 
-// Mostrar el formulario para crear una nueva venta
-Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
-
-// Almacenar una nueva venta
-Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
 
 // Mostrar los detalles de una venta específica
 
 
 // Eliminar venta
-Route::get('/sales/{id}', [SaleController::class, 'show'])->name('sales.show');
-Route::get('/sales/get-units', [SaleController::class, 'getUnits'])->name('sales.getUnits');
+
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
-    Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
-    Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
+   
+
 });
 
 

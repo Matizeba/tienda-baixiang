@@ -34,6 +34,7 @@
     <table id="unitsTable" class="table">
         <thead>
             <tr>
+                <th>Nombre</th>
                 <th>Unidad</th>
                 <th>Descripción</th>
                 <th>Precio</th>
@@ -126,10 +127,11 @@
             if (productId == "{{ $product->id }}") {
                 @foreach($product->productUnits as $productUnit)
                     var row = unitsTableBody.insertRow();
-                    row.insertCell(0).innerText = "{{ $productUnit->unit->name }}";
-                    row.insertCell(1).innerText = "{{ $productUnit->unit->description }}";
-                    row.insertCell(2).innerText = "{{ $productUnit->price }}";
-                    row.insertCell(3).innerText = "{{ $productUnit->stock }}";
+                    row.insertCell(0).innerText = "{{ $productUnit->product->name }}";
+                    row.insertCell(1).innerText = "{{ $productUnit->unit->name }}";
+                    row.insertCell(2).innerText = "{{ $productUnit->unit->description }}";
+                    row.insertCell(3).innerText = "{{ $productUnit->price }}";
+                    row.insertCell(4).innerText = "{{ $productUnit->stock }}";
 
                     // Agregar botón para añadir al carrito
                     var addButton = document.createElement('button');
@@ -140,7 +142,7 @@
                             openConfirmModal(unitId, price, productId, productName, description, stock);
                         };
                     })("{{ $productUnit->unit->id }}", "{{ $productUnit->price }}", "{{ $product->id }}", "{{ $product->name }}", "{{ $productUnit->unit->description }}", "{{ $productUnit->stock }}");
-                    var cell = row.insertCell(4);
+                    var cell = row.insertCell(5);
                     cell.appendChild(addButton);
                 @endforeach
             }
