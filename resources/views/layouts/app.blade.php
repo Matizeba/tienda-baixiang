@@ -42,7 +42,7 @@
             @if (Auth::user()->role == 1 && Auth::user()->id !=1 && Auth::user()->passwordUpdate  || Auth::user()->role == 2 && Auth::user()->passwordUpdate)
 
             <a href="{{ route('dashboard') }}"><i class="fas fa-bars"></i> Menú</a>
-            @else
+            @else @if(Auth::user()->role != 3) 
             <a href="{{ route('dashboard') }}"><i class="fas fa-bars"></i> Menú</a>
             <a href="{{ route('users.index') }}"><i class="fas fa-users"></i> Usuarios</a>
             <a href="{{route('clients.index')}}"><i class="fas fa-user-friends"></i> Clientes</a>
@@ -52,6 +52,13 @@
             <a href="{{ route('sales.index') }}"><i class="fas fa-shopping-cart"></i> Ventas</a>
             <a href="#"><i class="fas fa-chart-line"></i> Reportes</a>
             <a href="#"><i class="fas fa-bell"></i> Alertas</a>
+             @else
+                <a href="{{ route('dashboard') }}"><i class="fas fa-bars"></i> Menú</a>
+                <a href="{{ route('products.view') }}"><i class="fas fa-eye"></i> Ver Productos</a>
+                <a href="{{ route('purchases.index') }}"><i class="fas fa-shopping-cart"></i> Compras</a>
+                <a href="#"><i class="fas fa-chart-line"></i> Reportes</a>
+                <a href="#"><i class="fas fa-bell"></i> Alertas</a>
+                @endif
             @endif
         </div>
         <div class="user-info">

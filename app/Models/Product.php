@@ -15,6 +15,13 @@ class Product extends Model
         return $this->hasMany(ProductUnit::class);
     }
 
+    public function units()
+    {
+        return $this->hasMany(Unit::class);  // O la relación que corresponda
+    }
+
+
+
     public function category()
     {
         return $this->belongsTo(Category::class);

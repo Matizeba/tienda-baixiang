@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
@@ -83,6 +84,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('sales/{id}/receipt', [SaleController::class, 'printReceipt'])->name('sales.receipt');
     Route::post('/sales/{id}/change-status', [SaleController::class, 'changeStatus'])->name('sales.changeStatus');
 
+    Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
+    Route::post('/purchases', [PurchaseController::class, 'store'])->name('purchases.store');
+    Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
+    Route::get('/purchases/view', [PurchaseController::class, 'view'])->name('purchases.view');
+    Route::delete('/purchases/{id}', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
+    Route::get('/purchases/{id}', [PurchaseController::class, 'show'])->name('purchases.show');
+    Route::get('/purchases/get-units', [PurchaseController::class, 'getUnits'])->name('purchases.getUnits');
+    Route::get('/purchases/{id}/edit', [PurchaseController::class, 'edit'])->name('purchases.edit');
+    Route::put('/purchases/{id}', [PurchaseController::class, 'update'])->name('purchases.update');
+    Route::get('/purchases/{id}/receipt', [PurchaseController::class, 'printReceipt'])->name('purchases.receipt');
+    Route::post('/purchases/{id}/change-status', [PurchaseController::class, 'changeStatus'])->name('purchases.changeStatus');
 
 });
 

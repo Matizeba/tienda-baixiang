@@ -63,7 +63,8 @@
     </div>
 </div>
 
-        @else
+        @else 
+        @if (Auth::user()->role != 3)
         <div class="row">
             <div class="col-lg-3 col-md-6">
                 <div class="card text-white bg-info mb-4">
@@ -216,6 +217,7 @@
                 </div>
             </div>
         </div>
+        @endif
     @endif
 
 </div>

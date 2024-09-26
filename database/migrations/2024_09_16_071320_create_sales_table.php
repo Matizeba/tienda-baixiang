@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id(); // ID de la venta
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Usuario que realiza la venta
-            $table->foreignId('customer_id')->constrained('users')->onDelete('cascade'); // Cliente que recibe la venta
-            $table->decimal('total_amount', 10, 2); // Monto total de la venta
-            $table->enum('status', ['pending', 'completed', 'canceled'])->default('pending'); // Estado de la venta
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('customer_id')->constrained('users')->onDelete('cascade'); 
+            $table->decimal('total_amount', 10, 2);
+            $table->tinyInteger('tipe_sale')->default(1);//compra 0 , venta 1
+            $table->enum('status', ['pending', 'completed', 'canceled'])->default('pending');
             $table->timestamps(); // Timestamps
         });
         

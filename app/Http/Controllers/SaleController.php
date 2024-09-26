@@ -154,7 +154,7 @@ public function edit($id)
     // Datos de la venta
     $saleData = [
         'saleId' => $sale->id,
-        'userId' => $sale->user_id,
+        'userId' => $sale->user_id=auth()->id(),
         'customerId' => $sale->customer_id,
         'totalAmount' => (float)$sale->total_amount,
         'status' => $sale->status
