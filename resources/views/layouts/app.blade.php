@@ -50,13 +50,15 @@
             <a href="{{ route('products.view') }}"><i class="fas fa-eye"></i> Ver Productos</a>
             <a href="{{ route('categories.index') }}"><i class="fas fa-list"></i> Categorías</a>
             <a href="{{ route('sales.index') }}"><i class="fas fa-shopping-cart"></i> Ventas</a>
-            <a href="#"><i class="fas fa-chart-line"></i> Reportes</a>
+            <a href="{{ route('reports.sales_by_month') }}" class="btn btn-info">Ver Reporte de Ventas por Mes</a>
+
             <a href="#"><i class="fas fa-bell"></i> Alertas</a>
              @else
                 <a href="{{ route('dashboard') }}"><i class="fas fa-bars"></i> Menú</a>
                 <a href="{{ route('products.view') }}"><i class="fas fa-eye"></i> Ver Productos</a>
                 <a href="{{ route('purchases.index') }}"><i class="fas fa-shopping-cart"></i> Compras</a>
-                <a href="#"><i class="fas fa-chart-line"></i> Reportes</a>
+                <a href="{{ route('sales.by.month') }}" class="btn btn-info">Ver Reporte de Ventas por Mes</a>
+
                 <a href="#"><i class="fas fa-bell"></i> Alertas</a>
                 @endif
             @endif

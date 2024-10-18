@@ -13,6 +13,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\TestEmail;
 
+use App\Http\Controllers\SalesReportController;
+
+Route::get('/reports/sales-by-month', [SalesReportController::class, 'salesByMonth'])->name('sales.by.month');
+Route::get('/reports/sales-by-month', [SalesReportController::class, 'salesByMonth'])->name('reports.sales_by_month');
+Route::get('/reports/export-excel', [SalesReportController::class, 'exportToExcel'])->name('reports.exportExcel');
+
 Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
