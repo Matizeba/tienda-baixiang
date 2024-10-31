@@ -33,3 +33,4 @@ Schema::create('categories', function (Blueprint $table) {
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
+        

@@ -9,9 +9,11 @@
     <div class="d-flex justify-content-between align-items-center my-4">
         <h1 class="h3 text-danger"><i class="fas fa-shopping-bag"></i> Lista de Compras</h1>
         <div class="d-flex gap-2">
+            @if (Auth::user()->role != 3)
             <a href="{{ route('purchases.view') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Registrar Nueva Compra
             </a>
+            @endif
         </div>
     </div>
 

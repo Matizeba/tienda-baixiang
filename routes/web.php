@@ -125,10 +125,9 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-Route::view('/', 'welcome');
-/*Route::get('/',function(){
+Route::get('/',function(){
     return redirect()->route('login');
-});*/
+});
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
