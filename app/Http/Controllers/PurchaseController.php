@@ -48,9 +48,77 @@ class PurchaseController extends Controller
     
     $categories = Category::all();
     $products = Product::with('productUnits.unit')->get();
+
+    /*dd([
+        'categories'=>$categories,
+        'products'=>$products,
+    ]);*/
     return view('livewire/purchases.view', compact('products', 'categories', 'searchTerm', 'categoryId'));
 }
+public function store(Request $request)
+{
+    $validatedData = $request->validate([
+        'products' => 'required|array',
+    ]);
 
+    // Iniciar una transacción
+    DB::beginTransaction();
+    try {
+        // Crear la venta
+        $sale = new Sale();
+        $sale->user_id =auth()->id();
+        $sale->customer_id = auth()->id();
+        $sale->total_amount = 0; 
+        $sale->tipe_sale = 0;
+        $sale->status = 'completed'; 
+        $sale->save();
+
+        // Procesar cada producto
+        $totalAmount = 0;
+
+        foreach ($validatedData['products'] as $productData) {
+            $productData = json_decode($productData, true); // Decodificar el JSON
+
+            foreach ($productData as $item) {
+                // Crear el detalle de la venta
+                $saleDetail = new SaleDetail();
+                $saleDetail->sale_id = $sale->id;
+                $saleDetail->product_id = $item['id']; // ID del producto
+                $saleDetail->unit_id = $item['unitId']; // Asegúrate de que unitId esté presente
+                $saleDetail->quantity = $item['quantity'];
+                $saleDetail->price = $item['price'];
+                $saleDetail->total = $item['price'] * $item['quantity'];
+                $saleDetail->save();
+
+                // Actualizar el monto total
+                $totalAmount += $saleDetail->total;
+
+                // Actualizar el stock del producto
+                $productUnit = ProductUnit::where('product_id', $item['id'])
+                    ->where('unit_id', $item['unitId'])
+                    ->first();
+
+                if ($productUnit) {
+                    $productUnit->stock -= $item['quantity'];
+                    $productUnit->save();
+                }
+            }
+        }
+
+        // Actualizar el monto total de la venta
+        $sale->total_amount = $totalAmount;
+        $sale->save();
+
+        // Confirmar la transacción
+        DB::commit();
+
+        return redirect()->route('purchases.index')->with('success', 'Venta creada con éxito.');
+    } catch (\Exception $e) {
+        // Deshacer la transacción si algo falla
+        DB::rollBack();
+        return redirect()->route('purchases.view')->with('error', 'Error al crear la venta: ' . $e->getMessage());
+    }
+}
 
 
 

@@ -59,7 +59,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ $product->name }}</h5>
                         <p class="card-text">
-                            <strong>Cantidad:</strong> {{ $product->quantity }}
+                            <strong>Cantidad:</strong> {{ $product->stock }}
                         </p>
                     </div>
 

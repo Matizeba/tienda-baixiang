@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Sale extends Model
 {
     // Especifica los campos que pueden ser asignados masivamente
-    protected $fillable = ['user_id', 'customer_id', 'total_amount', 'status'];
+    protected $fillable = ['user_id', 'customer_id', 'tipe_sale','total_amount', 'status'];
 
     // Relación con los detalles de la venta (muchos detalles para una venta)
     public function saleDetails()

@@ -2,101 +2,61 @@
 
 @section('content')
 <div class="container">
-    <!-- Listado de productos -->
-    <div class="row">
-        @forelse ($products as $product)
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 {{ $product->status == 0 ? 'border-danger' : '' }}">
-                    <!-- Imagen del producto -->
-                    @if ($product->image)
-                        <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}">
-                    @else
-                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Imagen no disponible">
-                    @endif
+    <h2>Crear Venta</h2>
 
-                    <!-- Información del producto -->
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $product->name }}</h5>
-                        <p class="card-text"><strong>Descripción:</strong> {{ $product->description }}</p>
-                        <p class="card-text"><strong>Categoría:</strong> {{ $product->category->name }}</p>
-                    </div>
-
-                    <!-- Precio y botón de detalles -->
-                    <div class="card-footer d-flex justify-content-between align-items-center">
-                        <span class="text-muted">{{ $product->price }} Bs</span>
-                        <button class="btn btn-primary btn-sm" 
-        data-toggle="modal" 
-        data-target="#productModal" 
-        data-id="{{ $product->id }}" 
-        data-name="{{ $product->name }}" 
-        data-description="{{ $product->description }}" 
-        data-category="{{ $product->category->name }}" 
-        data-units="{{ json_encode($product->units) }}" 
-        data-image="{{ asset('storage/' . $product->image) }}">
-    Ver Detalles
-</button>
-
-                    </div>
-                </div>
-            </div>
-        @empty
-            <div class="col-12">
-                <p>No hay productos disponibles.</p>
-            </div>
-        @endforelse
-    </div>
-
-    <!-- Modal de detalles del producto -->
-    <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="productModalLabel">Detalles del Producto</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center mb-3">
-                        <img id="modalImage" src="" class="img-fluid" alt="Imagen del Producto">
-                    </div>
-                    <p><strong>Nombre:</strong> <span id="modalName"></span></p>
-                    <p><strong>Descripción:</strong> <span id="modalDescription"></span></p>
-                    <p><strong>Categoría:</strong> <span id="modalCategory"></span></p>
-
-                    <div id="modalUnits">
-                        <p><strong>Unidades Disponibles:</strong></p>
-                        <ul id="unitList"></ul>
-                    </div>
-
-                    <button type="button" class="btn btn-success" id="addToCartButton">Añadir al Carrito</button>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
+    <div class="row mb-3">
+        <div class="col-md-6 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cartModal">
+                <i class="fas fa-shopping-cart"></i> Carrito <span class="badge bg-secondary" id="cartCount">0</span>
+            </button>
         </div>
     </div>
 
-    <!-- Modal para confirmar cantidad -->
-    <div class="modal fade" id="confirmQuantityModal" tabindex="-1" aria-labelledby="confirmQuantityModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    <div class="row">
+        @foreach($products as $product)
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                    <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}">
+                        <h5 class="card-title">{{ $product->name }}</h5>
+                        <p class="card-text">{{ $product->description }}</p>
+                        <button class="btn btn-primary" onclick="openProductModal({{ $product->id }})">Ver detalles</button>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    <!-- Modal para mostrar los detalles del producto y la tabla de unidades -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmQuantityModalLabel">Confirmar Cantidad</h5>
+                    <h5 class="modal-title" id="productModalLabel">Detalles del Producto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Producto: <span id="confirmProductName"></span></p>
-                    <p>Descripción: <span id="confirmDescription"></span></p>
-                    <p>Precio: <span id="confirmPrice"></span></p>
-                    <label for="confirmQuantityInput" class="form-label">Cantidad:</label>
-                    <input type="number" id="confirmQuantityInput" class="form-control" min="1" value="1">
-                    <p>Total: <span id="confirmTotal"></span></p>
+                    <h5 id="modalProductName"></h5>
+                    <p id="modalProductDescription"></p>
+
+                    <table id="unitsTable" class="table">
+                        <thead>
+                            <tr>
+                                <th>Unidad</th>
+                                <th>Descripción</th>
+                                <th>Precio</th>
+                                <th>Cantidad Disponible</th>
+                                <th>Cantidad a Añadir</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí se llenarán las unidades según el producto seleccionado -->
+                        </tbody>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" id="addToCartConfirmButton">Añadir al Carrito</button>
                 </div>
             </div>
         </div>
@@ -115,6 +75,7 @@
                         <thead>
                             <tr>
                                 <th>Producto</th>
+                                <th>Unidad</th>
                                 <th>Descripción</th>
                                 <th>Precio</th>
                                 <th>Cantidad</th>
@@ -123,151 +84,188 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Aquí se mostrará el contenido del carrito -->
+                            <!-- Aquí se agregarán los artículos seleccionados -->
                         </tbody>
                     </table>
-                    <p><strong>Total General:</strong> <span id="cartTotal">0</span> Bs</p>
+                    <h5>Total General: <span id="grandTotal">0.00</span></h5>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-success" id="checkoutButton">Confirmar Compra</button>
+                    <button type="button" class="btn btn-primary" id="confirmSaleButton">Confirmar Venta</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Formulario oculto para gestionar el carrito -->
+    <form id="cartForm" action="{{ route('purchases.store') }}" method="POST" style="display: none;">
+        @csrf
+        <input type="hidden" name="products[]" id="productsInput">
+    </form>
+
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    let cart = [];
-    let cartCountElement = document.getElementById('cartCount');
-    let cartTableBody = document.querySelector('#cartTable tbody');
-    let cartTotalElement = document.getElementById('cartTotal');
+    var products = @json($products);
+    var cart = []; // Array para almacenar los productos del carrito
 
-    // Manejo del modal de detalles del producto
-    $('#productModal').on('show.bs.modal', function (event) {
-    let button = $(event.relatedTarget); // Botón que activó el modal
-    let productId = button.data('id');
-    let productName = button.data('name');
-    let productDescription = button.data('description');
-    let productCategory = button.data('category');
-    let productImage = button.data('image');
-    let productUnits = button.data('units'); // Unidades del producto
-
-    let modal = $(this);
-    modal.find('#modalName').text(productName);
-    modal.find('#modalDescription').text(productDescription);
-    modal.find('#modalCategory').text(productCategory);
-    modal.find('#modalImage').attr('src', productImage);
-
-    // Añadir las unidades al modal
-    let unitList = modal.find('#unitList');
-    unitList.empty(); // Limpiar las unidades anteriores
-    for (let i = 0; i < productUnits.length; i++) {
-        let unit = productUnits[i];
-        unitList.append(`<li>${unit.name} - ${unit.quantity} disponibles</li>`);
-    }
-});
-
-
-        let addToCartButton = modal.find('#addToCartButton');
-        addToCartButton.off('click');
-        addToCartButton.on('click', function () {
-            $('#confirmQuantityModal').modal('show');
-            $('#confirmProductName').text(productName);
-            $('#confirmDescription').text(productDescription);
-            $('#confirmPrice').text(productPrice);
-            $('#confirmQuantityInput').attr('max', productQuantity);
-            calculateTotal();
-        });
-    });
-
-    document.getElementById('confirmQuantityInput').addEventListener('input', function () {
-        calculateTotal();
-    });
-
-    document.getElementById('addToCartConfirmButton').addEventListener('click', function () {
-        let productName = document.getElementById('confirmProductName').textContent;
-        let productDescription = document.getElementById('confirmDescription').textContent;
-        let productPrice = parseFloat(document.getElementById('confirmPrice').textContent);
-        let quantity = parseInt(document.getElementById('confirmQuantityInput').value);
-
-        let total = productPrice * quantity;
-        
-        let product = {
-            name: productName,
-            description: productDescription,
-            price: productPrice,
-            quantity: quantity,
-            total: total
-        };
-
-        addToCart(product);
-$('#confirmQuantityModal').modal('hide');  // Ocultamos el modal de confirmación de cantidad después de añadir el producto al carrito.
-});
-
-// Función para calcular el total en el modal de confirmación
-function calculateTotal() {
-    let price = parseFloat(document.getElementById('confirmPrice').textContent);  // Obtenemos el precio del producto.
-    let quantity = parseInt(document.getElementById('confirmQuantityInput').value);  // Obtenemos la cantidad seleccionada.
-    let total = price * quantity;  // Calculamos el total.
-    document.getElementById('confirmTotal').textContent = total.toFixed(2);  // Mostramos el total en el modal.
-}
-
-// Función para añadir un producto al carrito
-function addToCart(product) {
-    let exists = false;
-
-    // Verificamos si el producto ya está en el carrito
-    cart.forEach(function(item) {
-        if (item.name === product.name && item.description === product.description) {
-            // Si el producto ya está en el carrito, solo sumamos la cantidad
-            item.quantity += product.quantity;
-            item.total += product.total;
-            exists = true;
+    // Función para abrir el modal de producto y llenar sus detalles
+    function openProductModal(productId) {
+        var selectedProduct = products.find(product => product.id === productId);
+        if (!selectedProduct) {
+            alert("Producto no encontrado");
+            return;
         }
-    });
 
-    // Si el producto no existe en el carrito, lo añadimos
-    if (!exists) {
-        cart.push(product);
+        document.getElementById('modalProductName').innerText = selectedProduct.name;
+        document.getElementById('modalProductDescription').innerText = selectedProduct.description;
+
+        // Llenar la tabla de unidades
+        var unitsTableBody = document.getElementById('unitsTable').getElementsByTagName('tbody')[0];
+        unitsTableBody.innerHTML = ''; // Limpiar las filas anteriores
+
+        if (selectedProduct.product_units && selectedProduct.product_units.length > 0) {
+            selectedProduct.product_units.forEach(function(unit) {
+                if (unit.stock > 0) {
+                    var row = unitsTableBody.insertRow();
+                    row.insertCell(0).innerText = unit.unit.name || 'N/A';
+                    row.insertCell(1).innerText = unit.unit.description || 'N/A';
+                    row.insertCell(2).innerText = unit.price || 'N/A';
+                    row.insertCell(3).innerText = unit.stock || 'N/A';
+
+                    // Añadir un campo de entrada para la cantidad
+                    var quantityInput = document.createElement('input');
+                    quantityInput.type = 'number';
+                    quantityInput.className = 'form-control';
+                    quantityInput.min = 0;
+                    quantityInput.max = unit.stock;
+                    quantityInput.value = 0;
+                    quantityInput.id = 'quantity-' + unit.unit.id;
+
+                    row.insertCell(4).appendChild(quantityInput);
+
+                    var addButton = document.createElement('button');
+                    addButton.innerText = 'Añadir';
+                    addButton.className = 'btn btn-success btn-sm';
+                    addButton.disabled = true;
+                    row.insertCell(5).appendChild(addButton);
+
+                    quantityInput.addEventListener('input', function() {
+                        var quantity = parseInt(quantityInput.value);
+                        addButton.disabled = quantity <= 0;
+                    });
+
+                    addButton.onclick = function() {
+                        var quantity = parseInt(quantityInput.value);
+                        if (quantity > unit.stock) {
+                            alert("No se puede añadir más de " + unit.stock + " unidades.");
+                            return;
+                        }
+                        addToCart(selectedProduct.id, unit.unit.id, unit.price, quantity, selectedProduct.name, unit.unit.description, unit.stock);
+                    };
+                }
+            });
+        } else {
+            var row = unitsTableBody.insertRow();
+            var cell = row.insertCell(0);
+            cell.colSpan = 6;
+            cell.innerText = "No hay unidades disponibles";
+        }
+
+        $('#productModal').modal('show');
     }
 
-    // Actualizamos la vista del carrito
-    renderCart();
+    function addToCart(productId, unitId, price, quantity, productName, description, unitStock) {
+    var existingItem = cart.find(item => item.productId === productId && item.unitId === unitId);
+
+    if (existingItem) {
+        // Si el producto ya está en el carrito, incrementa la cantidad sin exceder el stock
+        var previousQuantity = existingItem.quantity;
+        var newQuantity = existingItem.quantity + quantity;
+
+        if (newQuantity <= unitStock) {
+            existingItem.quantity = newQuantity;
+            alert("Cantidad de " + productName + " incrementada de " + previousQuantity + " a " + newQuantity + ".");
+        } else {
+            alert("No se puede añadir más de " + (unitStock - existingItem.quantity) + " unidades.");
+            return;
+        }
+    } else {
+        // Agregar nuevo producto y unidad al carrito si no existe
+        var item = { 
+            productId: productId, 
+            unitId: unitId, 
+            price: price, 
+            quantity: quantity, 
+            productName: productName, 
+            description: description 
+        };
+        cart.push(item);
+
+        // Mostrar alerta solo para productos nuevos
+        alert(quantity + " unidad(es) de " + productName + " han sido añadidas al carrito.");
+    }
+
+    updateCartTable();
+    updateCartCount();
 }
 
-// Función para mostrar el contenido del carrito
-function renderCart() {
-    cartTableBody.innerHTML = '';  // Limpiamos el contenido anterior del carrito
-    let totalGeneral = 0;
 
-    // Iteramos sobre los productos del carrito para mostrarlos en la tabla
-    cart.forEach(function(product, index) {
-        let row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${product.name}</td>
-            <td>${product.description}</td>
-            <td>${product.price.toFixed(2)} Bs</td>
-            <td>${product.quantity}</td>
-            <td>${product.total.toFixed(2)} Bs</td>
-            <td><button class="btn btn-danger btn-sm" onclick="removeFromCart(${index})">Eliminar</button></td>
-        `;
-        cartTableBody.appendChild(row);  // Añadimos la fila del producto a la tabla
+    function updateCartTable() {
+        var cartTableBody = document.getElementById('cartTable').getElementsByTagName('tbody')[0];
+        cartTableBody.innerHTML = '';
+        var grandTotal = 0;
 
-        // Calculamos el total general de todos los productos
-        totalGeneral += product.total;
+        cart.forEach(function(item) {
+            var row = cartTableBody.insertRow();
+            row.insertCell(0).innerText = item.productName;
+            row.insertCell(1).innerText = item.unitName; 
+            row.insertCell(2).innerText = item.description;
+            row.insertCell(3).innerText = item.price.toFixed(2);
+            row.insertCell(4).innerText = item.quantity;
+            var total = item.price * item.quantity;
+            row.insertCell(5).innerText = total.toFixed(2);
+
+            // Crear botón para eliminar del carrito
+            var deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Eliminar';
+            deleteButton.className = 'btn btn-danger btn-sm';
+            deleteButton.onclick = function() {
+                removeFromCart(item.productId, item.unitId);
+            };
+            row.insertCell(6).appendChild(deleteButton);
+
+            grandTotal += total;
+        });
+
+        document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
+    }
+
+    function removeFromCart(productId, unitId) {
+        cart = cart.filter(function(item) {
+            return !(item.productId === productId && item.unitId === unitId);
+        });
+        updateCartTable();
+        updateCartCount();
+    }
+
+    function updateCartCount() {
+        document.getElementById('cartCount').innerText = cart.length;
+    }
+
+    // Lógica para confirmar la venta
+    document.getElementById('confirmSaleButton').addEventListener('click', function() {
+        var productsArray = cart.map(item => {
+            return {
+                id: item.productId,
+                unitId: item.unitId,
+                price: item.price,
+                quantity: item.quantity
+            };
+        });
+        document.getElementById('productsInput').value = JSON.stringify(productsArray);
+        document.getElementById('cartForm').submit();
     });
+</script>
 
-    // Actualizamos el total general y la cantidad de productos en el carrito
-    cartTotalElement.textContent = totalGeneral.toFixed(2);
-    cartCountElement.textContent = cart.length;
-}
-
-// Función para eliminar un producto del carrito
-window.removeFromCart = function(index) {
-    cart.splice(index, 1);  // Eliminamos el producto del array del carrito según el índice
-    renderCart();  // Volvemos a renderizar el carrito después de eliminar el producto
-};
-<script>
 @endsection
