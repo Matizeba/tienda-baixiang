@@ -50,7 +50,7 @@ public function updatePassword(Request $request)
 
     // Actualizar la contraseña
     $user->password = Hash::make($request->password);
-    $user->passwordUpdate = false; // Marca como actualizado
+    $user->passwordUpdate = false; 
     $user->save();
 
     return redirect()->route('dashboard')->with('status', 'Contraseña actualizada con éxito, muchas gracias');

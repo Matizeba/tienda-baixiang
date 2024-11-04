@@ -41,39 +41,96 @@
                 <span class="text-2xl font-semibold">BAIXIANG FAMA</span>
             </div>
             <nav class="mt-10">
-                    
-                    <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('dashboard') }}">
-                        <i class="fas fa-bars"></i>
-                        <span class="mx-3">Menú</span>
-                    </a>
-                    <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('users.index') }}">
-                        <i class="fas fa-users"></i>
-                        <span class="mx-3">Usuarios</span>
-                    </a>
-                    <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('clients.index') }}">
-                        <i class="fas fa-user-friends"></i>
-                        <span class="mx-3">Clientes</span>
-                    </a>
-                    <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('products.index') }}">
-                        <i class="fas fa-box"></i>
-                        <span class="mx-3">Productos</span>
-                    </a>
-                    <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('purchases.view') }}">
-                        <i class="fas fa-eye"></i>
-                        <span class="mx-3">Ver Productos</span>
-                    </a>
-                    <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('categories.index') }}">
-                        <i class="fas fa-list"></i>
-                        <span class="mx-3">Categorías</span>
-                    </a>
-                    <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('sales.index') }}">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="mx-3">Ventas</span>
-                    </a>
-                    <a class="btn btn-info mt-4 px-6" href="{{ route('reports.sales_by_month') }}">
-                        Ver Reporte de Ventas por Mes
-                    </a>
+            @if(auth()->user()->role != 3 && auth()->user()->id != 1 && auth()->user()->passwordUpdate)
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('dashboard') }}">
+                    <i class="fas fa-bars"></i>
+                    <span class="mx-3">Menú</span>
+                </a>
+            @elseif(auth()->user()->role == 1)
+                <!-- Menú Principal -->
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('dashboard') }}">
+                    <i class="fas fa-bars"></i>
+                    <span class="mx-3">Menú</span>
+                </a>
+
+                <!-- Gestión de Usuarios -->
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('users.index') }}">
+                    <i class="fas fa-users"></i>
+                    <span class="mx-3">Usuarios</span>
+                </a>
+
+                <!-- Gestión de Clientes -->
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('clients.index') }}">
+                    <i class="fas fa-user-friends"></i>
+                    <span class="mx-3">Clientes</span>
+                </a>
+
+                <!-- Productos y Categorías -->
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('products.index') }}">
+                    <i class="fas fa-box"></i>
+                    <span class="mx-3">Productos</span>
+                </a>
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('categories.index') }}">
+                    <i class="fas fa-list"></i>
+                    <span class="mx-3">Categorías</span>
+                </a>
+                
+                <!-- Compras y Historial -->
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('purchases.index') }}">
+                    <i class="fas fa-history"></i>
+                    <span class="mx-3">Historial de Compras</span>
+                </a>
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('purchases.view') }}">
+                    <i class="fas fa-eye"></i>
+                    <span class="mx-3">Ver Productos</span>
+                </a>
+
+                <!-- Ventas y Reportes -->
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('sales.index') }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="mx-3">Ventas</span>
+                </a>
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('reports.sales_by_month') }}">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="mx-3">Reporte de Ventas por Mes</span>
+                </a>
+            @elseif(auth()->user()->role == 2)
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('products.index') }}">
+                    <i class="fas fa-box"></i>
+                    <span class="mx-3">Productos</span>
+                </a>
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('categories.index') }}">
+                    <i class="fas fa-list"></i>
+                    <span class="mx-3">Categorías</span>
+                </a>
+                
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('purchases.view') }}">
+                    <i class="fas fa-eye"></i>
+                    <span class="mx-3">Ver Productos</span>
+                </a>
+
+                <!-- Ventas y Reportes -->
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('sales.index') }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="mx-3">Ventas</span>
+                </a>
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('reports.sales_by_month') }}">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="mx-3">Reporte de Ventas por Mes</span>
+                </a>
+                @else
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('purchases.view') }}">
+                    <i class="fas fa-eye"></i>
+                    <span class="mx-3">Ver Productos</span>
+                </a>
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('purchases.index') }}">
+                    <i class="fas fa-history"></i>
+                    <span class="mx-3">Historial de Compras</span>
+                </a>
+                @endif
+
             </nav>
+
         </aside>
         <div class="flex-1 flex flex-col overflow-hidden">
             

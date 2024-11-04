@@ -28,10 +28,9 @@
                         <tr>
                             <th scope="col"><i class="fas fa-hashtag"></i> ID</th>
                             <th scope="col"><i class="fas fa-user"></i> Comprador</th>
-                            <th scope="col"><i class="fas fa-user"></i> Proveedor</th>
                             <th scope="col"><i class="fas fa-money-bill"></i> Monto Total</th>
                             <th scope="col"><i class="fas fa-info-circle"></i> Estado</th>
-                            <th scope="col"><i class="fas fa-calendar-alt"></i> Fecha de Creación</th>
+                            <th scope="col"><i class="fas fa-calendar-alt"></i> Fecha de Compra</th>
                             <th scope="col"><i class="fas fa-cogs"></i> Acciones</th>
                         </tr>
                     </thead>
@@ -40,7 +39,7 @@
                             <tr>
                                 <th scope="row">{{ $purchase->id }}</th>
                                 <td>{{ $purchase->user ? $purchase->user->name : 'Desconocido' }}</td>
-                                <td>{{ $purchase->supplier ? $purchase->supplier->name : 'Desconocido' }}</td>
+                                
                                 <td>{{ $purchase->total_amount }} Bs</td>
                                 <td>
                                     @if ($purchase->status == 'completed')

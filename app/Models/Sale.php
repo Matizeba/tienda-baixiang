@@ -30,4 +30,10 @@ class Sale extends Model
     {
         return $this->hasMany(SaleDetail::class, 'sale_id');
     }
+
+    public function scopeOnlyTypeSale($query, $type)
+    {
+        return $query->where('tipe_sale', $type);
+    }
+
 }

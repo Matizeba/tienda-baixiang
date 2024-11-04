@@ -2,6 +2,36 @@
 
 @section('content')
 <div class="container">
+<form id="filterForm" action="{{ route('purchases.view') }}" method="GET">
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label for="searchTerm">Buscar Producto</label>
+        <input type="text" class="form-control" id="searchTerm" name="search_term" placeholder="Buscar...">
+    </div>
+    <div class="col-md-4">
+        <label for="categorySelect">Categoría</label>
+        <select class="form-select" id="categorySelect" name="category_id">
+            <option value="">Todas las categorías</option>
+            @foreach($categories as $category)
+                <option value="{{ $category->id }}">{{ $category->name }}</option>
+            @endforeach
+        </select>
+    </div>
+    
+    <div class="col-md-4">
+        <label for="statusSelect">Estado</label>
+        <select class="form-select" id="statusSelect" name="status">
+            <option value="1" selected>Habilitado</option> <!-- Estado predeterminado -->
+            <option value="0">Deshabilitado</option>
+        </select>
+    </div>
+
+    <div class="col-md-12 mt-3 text-end">
+        <button class="btn btn-primary" type="submit">Buscar</button>
+    </div>
+</div>
+
+</form>
 
     <div class="row mb-3">
         <div class="col-md-6 text-end">

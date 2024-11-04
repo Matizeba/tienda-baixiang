@@ -6,13 +6,13 @@
 
     <div class="row mb-3">
         <div class="col-md-6">
-            <label for="customerSelect" class="form-label">Seleccionar Cliente</label>
-            <select id="customerSelect" class="form-select" required>
-                <option value="">Seleccione un cliente</option>
+            <label for="customerInput" class="form-label">Seleccionar Cliente</label>
+            <input list="customers" id="customerInput" class="form-control" placeholder="Escriba o seleccione un cliente" required>
+            <datalist id="customers">
                 @foreach($customers as $customer)
-                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                    <option value="{{ $customer->name }} {{ $customer->first_surname }} {{ $customer->second_surname }} - CI: {{ $customer->ci }}" data-id="{{ $customer->id }}"></option>
                 @endforeach
-            </select>
+            </datalist>
         </div>
         <div class="col-md-6 text-end">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cartModal">
@@ -22,13 +22,13 @@
     </div>
 
     <div class="mb-3">
-        <label for="productSelect" class="form-label">Seleccionar Producto</label>
-        <select id="productSelect" class="form-select" onchange="updateUnits()">
-            <option value="">Seleccione un producto</option>
+        <label for="productInput" class="form-label">Seleccionar Producto</label>
+        <input list="products" id="productInput" class="form-control" placeholder="Escriba o seleccione un producto" required onchange="updateUnitsFromInput()">
+        <datalist id="products">
             @foreach($products as $product)
-                <option value="{{ $product->id }}">{{ $product->name }}</option>
+                <option value="{{ $product->name }}" data-id="{{ $product->id }}"></option>
             @endforeach
-        </select>
+        </datalist>
     </div>
 
     <table id="unitsTable" class="table">
@@ -118,35 +118,83 @@
 <script>
     var cart = []; // Array para almacenar los productos seleccionados
 
-    function updateUnits() {
-        var productId = document.getElementById('productSelect').value;
-        var unitsTableBody = document.getElementById('unitsTable').getElementsByTagName('tbody')[0];
-        unitsTableBody.innerHTML = ''; // Limpiar la tabla
+    // Función para capturar el ID del cliente al seleccionar un nombre
+    document.getElementById('customerInput').addEventListener('input', function() {
+        const value = this.value;
+        const options = document.getElementById('customers').querySelectorAll('option');
 
-        @foreach($products as $product)
-            if (productId == "{{ $product->id }}") {
-                @foreach($product->productUnits as $productUnit)
-                    var row = unitsTableBody.insertRow();
-                    row.insertCell(0).innerText = "{{ $productUnit->product->name }}";
-                    row.insertCell(1).innerText = "{{ $productUnit->unit->name }}";
-                    row.insertCell(2).innerText = "{{ $productUnit->unit->description }}";
-                    row.insertCell(3).innerText = "{{ $productUnit->price }}";
-                    row.insertCell(4).innerText = "{{ $productUnit->stock }}";
-
-                    // Agregar botón para añadir al carrito
-                    var addButton = document.createElement('button');
-                    addButton.innerText = 'Añadir';
-                    addButton.className = 'btn btn-success btn-sm';
-                    addButton.onclick = (function(unitId, price, productId, productName, description, stock) {
-                        return function() {
-                            openConfirmModal(unitId, price, productId, productName, description, stock);
-                        };
-                    })("{{ $productUnit->unit->id }}", "{{ $productUnit->price }}", "{{ $product->id }}", "{{ $product->name }}", "{{ $productUnit->unit->description }}", "{{ $productUnit->stock }}");
-                    var cell = row.insertCell(5);
-                    cell.appendChild(addButton);
-                @endforeach
+        options.forEach(option => {
+            if (option.value === value) {
+                document.getElementById('customer_id').value = option.getAttribute('data-id');
             }
-        @endforeach
+        });
+    });
+
+  
+function updateUnits(productId) {
+    var unitsTableBody = document.getElementById('unitsTable').getElementsByTagName('tbody')[0];
+    unitsTableBody.innerHTML = ''; // Limpiar la tabla
+
+    @foreach($products as $product)
+        // Asegúrate de que estás comparando correctamente el ID
+        if (productId == "{{ $product->id }}") {
+            @foreach($product->productUnits as $productUnit)
+                var row = unitsTableBody.insertRow();
+                row.insertCell(0).innerText = "{{ $productUnit->product->name }}";
+                row.insertCell(1).innerText = "{{ $productUnit->unit->name }}";
+                row.insertCell(2).innerText = "{{ $productUnit->unit->description }}";
+                row.insertCell(3).innerText = "{{ $productUnit->price }}";
+                row.insertCell(4).innerText = "{{ $productUnit->stock }}";
+
+                // Agregar botón para añadir al carrito
+                var addButton = document.createElement('button');
+                addButton.innerText = 'Añadir';
+                addButton.className = 'btn btn-success btn-sm';
+                addButton.onclick = (function(unitId, price, productId, productName, description, stock) {
+                    return function() {
+                        openConfirmModal(unitId, price, productId, productName, description, stock);
+                    };
+                })("{{ $productUnit->unit->id }}", "{{ $productUnit->price }}", "{{ $product->id }}", "{{ $product->name }}", "{{ $productUnit->unit->description }}", "{{ $productUnit->stock }}");
+                var cell = row.insertCell(5);
+                cell.appendChild(addButton);
+            @endforeach
+        }
+    @endforeach
+}
+
+// Función para actualizar las unidades según el producto del datalist
+function updateUnitsFromInput() {
+    const productInput = document.getElementById('productInput');
+    const value = productInput.value;
+    const options = document.getElementById('products').querySelectorAll('option');
+
+    let productId; // Variable para almacenar el ID del producto
+
+    options.forEach(option => {
+        if (option.value === value) {
+            productId = option.getAttribute('data-id'); // Guardar el ID del producto
+        }
+    });
+
+    if (productId) {
+        updateUnits(productId); // Llamar a la función de actualización de unidades
+    }
+}
+
+
+    // Función para actualizar las unidades según el producto del datalist
+    function updateUnitsFromInput() {
+        const productInput = document.getElementById('productInput');
+        const value = productInput.value;
+        const options = document.getElementById('products').querySelectorAll('option');
+
+        options.forEach(option => {
+            if (option.value === value) {
+                const productId = option.getAttribute('data-id');
+                // Llamar a la función de actualización de unidades con el ID del producto
+                updateUnits(productId);
+            }
+        });
     }
 
     function openConfirmModal(unitId, price, productId, productName, description, stock) {
@@ -169,30 +217,28 @@
             updateTotal(this.value, price);
         };
 
-        // Guardar el producto en el botón de añadir al carrito
+        // Guardar la información para añadir al carrito
         document.getElementById('addToCartButton').onclick = function() {
             var quantity = parseInt(quantityInput.value);
-            if (quantity > stock) {
-                alert("No se puede añadir más de " + stock + " unidades.");
-                return;
-            }
             addToCart(productId, unitId, price, quantity, productName, description);
             $('#confirmQuantityModal').modal('hide'); // Cerrar el modal
         };
 
-        $('#confirmQuantityModal').modal('show'); // Mostrar el modal
+        // Abrir el modal
+        $('#confirmQuantityModal').modal('show');
     }
 
     function updateTotal(quantity, price) {
         var total = quantity * price;
-        document.getElementById('confirmTotal').innerText = total.toFixed(2); // Mostrar el total formateado
+        document.getElementById('confirmTotal').innerText = total.toFixed(2);
     }
 
     function addToCart(id, unitId, price, quantity, productName, description) {
         // Añadir el artículo al carrito
         cart.push({ 
+            
             id: id, 
-            unitId: unitId, // Ahora guardamos el ID de la unidad
+            unitId: unitId, 
             description: description, 
             price: price, 
             quantity: quantity 
@@ -247,7 +293,8 @@
 
     document.getElementById('confirmSaleButton').onclick = function() {
         // Guardar el ID del cliente
-        document.getElementById('customer_id').value = document.getElementById('customerSelect').value;
+        var customerId = document.getElementById('customer_id').value;
+        document.getElementById('customer_id').value = customerId; // El valor es el ID del cliente
 
         // Guardar los productos en un campo oculto
         document.getElementById('productsInput').value = JSON.stringify(cart);

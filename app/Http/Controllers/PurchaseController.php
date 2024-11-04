@@ -17,23 +17,38 @@ use PDF;
 class PurchaseController extends Controller
 {
     public function index(Request $request)
-    {
+{
+    $user = auth()->user(); // Obtén el usuario autenticado
+
+    if ($user->role == 3) { // Verifica si el rol es 3
+        // Muestra solo las compras del cliente asociado al usuario
         $purchases = Sale::with('customer')
-            ->where('user_id', auth()->id())
+            ->where('customer_id', $user->customer_id) // Filtra por customer_id del usuario
             ->where('tipe_sale', 0) // Filtrar solo las compras
             ->paginate(10);
-
-        return view('livewire.purchases.index', compact('purchases'));
+    } else {
+        // Muestra todas las compras para otros roles
+        $purchases = Sale::with('customer')
+            ->where('tipe_sale', 0) // Filtrar solo las compras
+            ->paginate(10);
     }
 
-    public function view(Request $request)
+    return view('livewire.purchases.index', compact('purchases'));
+}
+
+
+public function view(Request $request)
 {
-    // Filtros para los productos
     $categoryId = $request->input('category_id');
     $searchTerm = $request->input('search_term');
+    $status = $request->input('status', 1); 
 
-    // Consulta base de productos con unidades
-    $query = Product::with('units');  // Asegúrate de cargar las unidades asociadas
+    // Consulta base de productos con sus unidades
+    $query = Product::with('productUnits.unit') // Cargar unidades asociadas a través de product_units
+                    ->whereHas('productUnits', function($query) {
+                        $query->where('stock', '>', 0); // Filtrar solo las unidades con stock mayor que 0
+                    })
+                    ->where('status', 1); // Mostrar solo productos habilitados por defecto
 
     // Filtrar por categoría
     if ($categoryId) {
@@ -45,16 +60,22 @@ class PurchaseController extends Controller
         $query->where('name', 'like', '%' . $searchTerm . '%');
     }
 
-    
-    $categories = Category::all();
-    $products = Product::with('productUnits.unit')->get();
+    // Filtrar por estado (si se aplica)
+    if ($status !== null) { // Comprobamos que el estado no sea nulo
+        $query->where('status', $status);
+    }
 
-    /*dd([
-        'categories'=>$categories,
-        'products'=>$products,
-    ]);*/
-    return view('livewire/purchases.view', compact('products', 'categories', 'searchTerm', 'categoryId'));
+    // Ejecutar la consulta para obtener los productos filtrados
+    $products = $query->get(); // Obtener productos después de aplicar los filtros
+
+    $categories = Category::all(); // Obtener todas las categorías
+
+    // Retornar la vista con los productos y categorías
+    return view('livewire/purchases.view', compact('products', 'categories', 'searchTerm', 'categoryId', 'status'));
 }
+
+
+
 public function store(Request $request)
 {
     $validatedData = $request->validate([

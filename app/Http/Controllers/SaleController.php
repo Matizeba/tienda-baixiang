@@ -19,11 +19,14 @@ class SaleController extends Controller
 {
     public function index(Request $request)
 {
-    
-    $sales = Sale::with('user', 'customer', 'details.product')->paginate(5);
+    // Filtrar las ventas donde 'tipe_sale' es igual a 1
+    $sales = Sale::with('user', 'customer', 'details.product')
+                  ->where('tipe_sale', 1) // Aquí se añade el filtro
+                  ->paginate(5); // Paginación
 
     return view('livewire.sales.index', compact('sales'));
 }
+
 
 
 public function show($id)
@@ -84,7 +87,7 @@ public function store(Request $request)
         $sale->user_id = auth()->id();
         $sale->customer_id = $validatedData['customer_id'];
         $sale->total_amount = 0; // Asigna el total más tarde
-        $sale->status = 'pending'; // Cambiar el estado a 'completed' al finalizar
+        $sale->status = 'completed'; // Cambiar el estado a 'completed' al finalizar
         $sale->save();
 
         // Procesar cada producto

@@ -17,7 +17,7 @@ class Product extends Model
 
     public function units()
     {
-        return $this->hasMany(Unit::class);  // O la relación que corresponda
+        return $this->hasMany(Unit::class); 
     }
 
 
