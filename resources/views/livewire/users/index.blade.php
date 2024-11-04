@@ -94,6 +94,10 @@
                     </tbody>
                 </table>
             </div>
+            <div class="pagination-links">
+                 {{ $users->links() }}
+            </div>
+
         </div>
     </div>
 </div>

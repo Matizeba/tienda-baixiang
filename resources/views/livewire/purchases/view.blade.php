@@ -2,7 +2,6 @@
 
 @section('content')
 <div class="container">
-    <h2>Crear Venta</h2>
 
     <div class="row mb-3">
         <div class="col-md-6 text-end">

@@ -17,7 +17,10 @@ use App\Models\User;
                 <i class="fas fa-file-excel"></i> Exportar
             </a>
             <a href="{{ route('products.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Registrar Nuevo Producto
+                <i class="fas fa-plus"></i> Registrar
+            </a>
+            <a href="{{ route('products.surtir') }}" class="btn btn-warning">
+                <i class="fas fa-truck"></i> Surtir
             </a>
             <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#unitsModal">
                 <i class="fas fa-th"></i> Unidades

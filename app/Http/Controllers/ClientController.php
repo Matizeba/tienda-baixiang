@@ -30,6 +30,8 @@ class ClientController extends Controller
     }
 
     $users = $query->get();
+    $users = $query->paginate(5);
+
 
     return view('livewire.clients.index', compact('users', 'statusFilter'));
 }

@@ -47,7 +47,7 @@
                             <th scope="col"><i class="fas fa-hashtag"></i> Nro.</th>
                             <th scope="col"><i class="fas fa-user"></i> Nombre Completo</th>
                             <th scope="col"><i class="fas fa-envelope"></i> Correo Electrónico</th>
-                            <th scope="col"><i class="fas fa-user-tag"></i> Rol</th>
+                            <th scope="col"><i class="fas fa-phone"></i> Teléfono</th>
                             @if(Auth::user()->role == 1)
                             <th scope="col"><i class="fas fa-cogs"></i> Estado</th>
                             <th scope="col"><i class="fas fa-id-badge"></i> ID Usuario</th>
@@ -61,15 +61,9 @@
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $user->name }} {{ $user->first_surname }} {{ $user->second_surname }}</td>
                                 <td>{{ $user->email }}</td>
-                                <td>
-                                    @if ($user->role == 1)
-                                        <i class="fas fa-user-shield"></i> Administrador
-                                    @elseif ($user->role == 2)
-                                        <i class="fas fa-user-tie"></i> Vendedor
-                                    @elseif ($user->role == 3)
-                                        <i class="fas fa-user"></i> Cliente
-                                    @endif
-                                </td>
+
+                                <td>{{ $user->phone }}</td>
+
                                 @if(Auth::user()->role == 1)
                                 <td>
                                     <span class="badge {{ $user->status == 1 ? 'bg-success' : 'bg-danger' }}">
@@ -93,6 +87,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                        <div class="pagination-links">
+                        {{ $users->links() }}
+                        </div>
             </div>
         </div>
     </div>

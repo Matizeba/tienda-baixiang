@@ -61,6 +61,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::get('/products/view', [ProductController::class, 'view'])->name('products.view');
+    Route::get('/products/surtir', [ProductController::class, 'surtir'])->name('products.surtir');
     Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
     Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
     
@@ -101,6 +102,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/purchases/{id}', [PurchaseController::class, 'update'])->name('purchases.update');
     Route::get('/purchases/{id}/receipt', [PurchaseController::class, 'printReceipt'])->name('purchases.receipt');
     Route::post('/purchases/{id}/change-status', [PurchaseController::class, 'changeStatus'])->name('purchases.changeStatus');
+    Route::post('/products/supply', [ProductController::class, 'supply'])->name('products.supply');
+    Route::post('/products/remove', [ProductController::class, 'remove'])->name('products.remove');
 
 });
 

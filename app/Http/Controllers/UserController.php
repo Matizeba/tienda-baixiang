@@ -19,6 +19,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
 {
+    
     $statusFilter = $request->input('status', 'all'); // Agregamos el filtro de estado
 
     // Filtrar por roles 1 y 2
@@ -33,6 +34,8 @@ class UserController extends Controller
 
     // Obtener usuarios sin ordenamiento
     $users = $query->get();
+    $users = $query->paginate(5);
+
 
     return view('livewire.users.index', compact('users', 'statusFilter'));
 }
@@ -280,6 +283,8 @@ class UserController extends Controller
         // Enviar el archivo al navegador
         $writer->save('php://output');
         exit;
+
+        
     }
 
 }

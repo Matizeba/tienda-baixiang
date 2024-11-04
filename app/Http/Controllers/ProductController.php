@@ -326,4 +326,53 @@ public function unitsUpdate(Request $request, $id)
 
     return redirect()->route('products.index')->with('success', 'Unidad actualizada exitosamente.');
 }
+    // En app/Http/Controllers/ProductController.php
+
+    public function surtir()
+    {
+        // Aquí puedes cargar los productos que se pueden surtir
+        $products = Product::with('productUnits')->where('status', 1)->get(); // Solo productos disponibles
+        return view('livewire.products.surtir', compact('products'));
+    }
+    public function supply(Request $request)
+    {
+        // Validar la solicitud
+        $request->validate([
+            'unit_id' => 'required|exists:product_units,id',
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $unit = ProductUnit::find($request->unit_id);
+
+        // Verificar si hay suficiente stock
+        if ($unit->stock < $request->quantity) {
+            return response()->json(['message' => 'No hay suficiente stock disponible.'], 400);
+        }
+
+        // Actualizar el stock
+        $unit->stock -= $request->quantity;
+        $unit->save();
+
+        return response()->json(['message' => 'Producto Disminuido con éxito.']);
+    }
+
+    // Método para quitar productos
+    public function remove(Request $request)
+    {
+        // Validar la solicitud
+        $request->validate([
+            'unit_id' => 'required|exists:product_units,id',
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $unit = ProductUnit::find($request->unit_id);
+
+        // Aquí puedes implementar la lógica de negocio para aumentar el stock,
+        // dependiendo de cómo se maneje el inventario en tu aplicación
+        $unit->stock += $request->quantity;
+        $unit->save();
+
+        return response()->json(['message' => 'Producto Surtido con éxito.']);
+    }
+
 }
