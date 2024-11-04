@@ -23,7 +23,7 @@ class PurchaseController extends Controller
     if ($user->role == 3) { // Verifica si el rol es 3
         // Muestra solo las compras del cliente asociado al usuario
         $purchases = Sale::with('customer')
-            ->where('customer_id', $user->customer_id) // Filtra por customer_id del usuario
+            ->where('customer_id', $user->id) // Filtra por customer_id del usuario
             ->where('tipe_sale', 0) // Filtrar solo las compras
             ->paginate(10);
     } else {
@@ -139,9 +139,16 @@ public function store(Request $request)
         DB::rollBack();
         return redirect()->route('purchases.view')->with('error', 'Error al crear la venta: ' . $e->getMessage());
     }
+    
 }
 
-
+public function show($id)
+{
+    // Mostrar detalles de la venta
+    $sale = Sale::with(['user', 'customer', 'details.product', 'details.unit'])->findOrFail($id);
+    
+    return view('livewire.purchases.show', compact('sale'));
+}
 
     
 }
