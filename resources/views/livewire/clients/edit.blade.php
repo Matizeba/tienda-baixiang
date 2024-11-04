@@ -1,12 +1,11 @@
 @extends('layouts.app')
 
 @section('breadcrumbs')
-    <a href="{{ route('clients.index') }}" class="text-white">/ Cliente</a> <h1 class="text-white" > / Editar</h1>
+    <a href="{{ route('clients.index') }}" class="text-white">/ Cliente</a> <h1 class="text-white"> / Editar</h1>
 @endsection
 
 @section('content')
 <div class="container">
-    
     <div class="d-flex justify-content-between align-items-center my-4">
         <h1 class="h3">Editar Usuario</h1>
         <a href="{{ route('clients.index') }}" class="btn btn-secondary">Volver</a>
@@ -37,8 +36,28 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="first_surname">Primer Apellido</label>
+                    <input type="text" name="first_surname" id="first_surname" value="{{ old('first_surname', $user->first_surname) }}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="second_surname">Segundo Apellido</label>
+                    <input type="text" name="second_surname" id="second_surname" value="{{ old('second_surname', $user->second_surname) }}" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="ci">Cédula de Identidad</label>
+                    <input type="text" name="ci" id="ci" value="{{ old('ci', $user->ci) }}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
                     <label for="email">Correo Electrónico</label>
                     <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}" class="form-control">
                 </div>
 
                 <button type="button" class="btn btn-success mt-4" data-toggle="modal" data-target="#confirmModal">
@@ -63,8 +82,11 @@
                 <p>Estás a punto de actualizar los datos del usuario con los siguientes detalles:</p>
                 <ul>
                     <li><strong>Nombre:</strong> <span id="modalName"></span></li>
+                    <li><strong>Primer Apellido:</strong> <span id="modalFirstSurname"></span></li>
+                    <li><strong>Segundo Apellido:</strong> <span id="modalSecondSurname"></span></li>
+                    <li><strong>Cédula de Identidad:</strong> <span id="modalCI"></span></li>
                     <li><strong>Correo Electrónico:</strong> <span id="modalEmail"></span></li>
-                    <li><strong>Rol:</strong> <span id="modalRole"></span></li>
+                    <li><strong>Teléfono:</strong> <span id="modalPhone"></span></li>
                 </ul>
                 <p>¿Estás seguro de que deseas continuar?</p>
             </div>
@@ -80,17 +102,26 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Cargar datos en el modal cuando se hace clic en "Actualizar"
         const nameInput = document.getElementById('name');
+        const firstSurnameInput = document.getElementById('first_surname');
+        const secondSurnameInput = document.getElementById('second_surname');
+        const ciInput = document.getElementById('ci');
         const emailInput = document.getElementById('email');
-        const roleInput = document.getElementById('role');
+        const phoneInput = document.getElementById('phone');
 
         const modalName = document.getElementById('modalName');
+        const modalFirstSurname = document.getElementById('modalFirstSurname');
+        const modalSecondSurname = document.getElementById('modalSecondSurname');
+        const modalCI = document.getElementById('modalCI');
         const modalEmail = document.getElementById('modalEmail');
-        const modalRole = document.getElementById('modalRole');
+        const modalPhone = document.getElementById('modalPhone');
 
         document.querySelector('[data-target="#confirmModal"]').addEventListener('click', function() {
             modalName.textContent = nameInput.value;
+            modalFirstSurname.textContent = firstSurnameInput.value;
+            modalSecondSurname.textContent = secondSurnameInput.value;
+            modalCI.textContent = ciInput.value;
             modalEmail.textContent = emailInput.value;
-            modalRole.textContent = roleInput.options[roleInput.selectedIndex].text;
+            modalPhone.textContent = phoneInput.value;
         });
 
         // Enviar el formulario al confirmar
@@ -100,4 +131,3 @@
     });
 </script>
 @endsection
-

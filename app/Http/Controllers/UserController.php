@@ -18,17 +18,25 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 class UserController extends Controller
 {
     public function index(Request $request)
-    {
-        $sortField = $request->input('sort_field', 'id');
-    $sortDirection = $request->input('sort_direction', 'asc');
-    
-    // Filtrar por roles 1 y 2
-        $users = User::whereIn('role', [1, 2])
-            ->orderBy($sortField, $sortDirection)
-            ->get();
+{
+    $statusFilter = $request->input('status', 'all'); // Agregamos el filtro de estado
 
-        return view('livewire/users.index', compact('users', 'sortField', 'sortDirection'));
+    // Filtrar por roles 1 y 2
+    $query = User::whereIn('role', [1, 2]);
+
+    // Filtrar según el estado
+    if ($statusFilter === 'enabled') {
+        $query->where('status', 1);
+    } elseif ($statusFilter === 'disabled') {
+        $query->where('status', 0);
     }
+
+    // Obtener usuarios sin ordenamiento
+    $users = $query->get();
+
+    return view('livewire.users.index', compact('users', 'statusFilter'));
+}
+
 
     public function create()
     {
@@ -81,51 +89,102 @@ class UserController extends Controller
 
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'
-            ],
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string',
-        ], [
-            'name.required' => 'El nombre es obligatorio.',
-            'name.string' => 'El nombre debe ser una cadena de texto.',
-            'name.max' => 'El nombre no puede tener más de 255 caracteres.',
-            'name.regex' => 'El nombre solo puede contener letras y espacios.',
-            'email.required' => 'El correo electrónico es obligatorio.',
-            'email.string' => 'El correo electrónico debe ser una cadena de texto.',
-            'email.email' => 'El correo electrónico debe ser una dirección de correo válida.',
-            'email.max' => 'El correo electrónico no puede tener más de 255 caracteres.',
-            'email.unique' => 'El correo electrónico ya está en uso.',
-            'password.required' => 'La contraseña es obligatoria.',
-            'password.string' => 'La contraseña debe ser una cadena de texto.',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
-            'role.required' => 'El rol es obligatorio.',
-            'role.string' => 'El rol debe ser una cadena de texto.',
-        ]);
+{
+    $request->validate([
+        'name' => [
+            'required',
+            'string',
+            'max:255',
+            'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?$/' // Permite un solo espacio para separar dos nombres
+        ],
+        'first_surname' => [
+            'required',
+            'string',
+            'max:255',
+            'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$/' // Sin espacios en el primer apellido
+        ],
+        'second_surname' => [
+            'nullable', // Cambiar 'required' a 'nullable' para hacerlo opcional
+            'string',
+            'max:255',
+            'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]*$/' // Sin espacios en el segundo apellido
+        ],
+        'ci' => [
+            'required',
+            'string',
+            'max:20', // O el tamaño que consideres apropiado
+            'regex:/^[0-9]{1,20}$/',
+            'unique:users' // Añadir validación para que el CI sea único
+        ],
+        'phone' => [
+            'required',
+            'string',
+            'max:15', // O el tamaño que consideres apropiado
+            'regex:/^[0-9\s\-\+\(\)]*$/',
+            'unique:users' // Añadir validación para que el teléfono sea único
+        ],
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8|confirmed',
+        'role' => 'required|string',
+    ], [
+        'name.required' => 'El nombre es obligatorio.',
+        'name.string' => 'El nombre debe ser una cadena de texto.',
+        'name.max' => 'El nombre no puede tener más de 255 caracteres.',
+        'name.regex' => 'El nombre solo puede contener letras y un único espacio para separar nombres.',
+        'first_surname.required' => 'El primer apellido es obligatorio.',
+        'first_surname.string' => 'El primer apellido debe ser una cadena de texto.',
+        'first_surname.max' => 'El primer apellido no puede tener más de 255 caracteres.',
+        'first_surname.regex' => 'El primer apellido solo puede contener letras sin espacios.',
+        'second_surname.nullable' => 'El segundo apellido es opcional.',
+        'second_surname.string' => 'El segundo apellido debe ser una cadena de texto.',
+        'second_surname.max' => 'El segundo apellido no puede tener más de 255 caracteres.',
+        'second_surname.regex' => 'El segundo apellido solo puede contener letras sin espacios.',
+        'ci.required' => 'La cédula de identidad es obligatoria.',
+        'ci.string' => 'La cédula de identidad debe ser una cadena de texto.',
+        'ci.max' => 'La cédula de identidad no puede tener más de 20 caracteres.',
+        'ci.regex' => 'La cédula de identidad solo puede contener números.',
+        'ci.unique' => 'La cédula de identidad ya está en uso.',
+        'phone.required' => 'El teléfono es obligatorio.',
+        'phone.string' => 'El teléfono debe ser una cadena de texto.',
+        'phone.max' => 'El teléfono no puede tener más de 15 caracteres.',
+        'phone.regex' => 'El teléfono solo puede contener números y caracteres especiales permitidos.',
+        'phone.unique' => 'El teléfono ya está en uso.',
+        'email.required' => 'El correo electrónico es obligatorio.',
+        'email.string' => 'El correo electrónico debe ser una cadena de texto.',
+        'email.email' => 'El correo electrónico debe ser una dirección de correo válida.',
+        'email.max' => 'El correo electrónico no puede tener más de 255 caracteres.',
+        'email.unique' => 'El correo electrónico ya está en uso.',
+        'password.required' => 'La contraseña es obligatoria.',
+        'password.string' => 'La contraseña debe ser una cadena de texto.',
+        'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+        'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+        'role.required' => 'El rol es obligatorio.',
+        'role.string' => 'El rol debe ser una cadena de texto.',
+    ]);
 
-        // Definir la contraseña antes de crear el usuario
-        $password = $request->password;
+    // Definir la contraseña antes de crear el usuario
+    $password = $request->password;
 
-        // Crear el usuario
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($password),
-            'role' => $request->role,
-        ]);
+    // Crear el usuario
+    $user = User::create([
+        'name' => $request->name,
+        'first_surname' => $request->first_surname,
+        'second_surname' => $request->second_surname, // Este campo puede ser nulo
+        'ci' => $request->ci,
+        'phone' => $request->phone,
+        'email' => $request->email,
+        'password' => Hash::make($password),
+        'role' => $request->role,
+    ]);
 
-        // Enviar el correo electrónico al usuario con la contraseña generada
-        \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\UserRegistered($user, $password));
 
-        return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
-    }
+    \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\UserRegistered($user, $password));
+
+    return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
+}
+
+
+
     public function toggleStatus($id)
     {
         $user = User::findOrFail($id);

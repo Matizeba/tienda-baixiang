@@ -64,38 +64,38 @@
 
     <!-- Modal del carrito -->
     <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-        <div class="modal-dialog modalSale">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="cartModalLabel">Carrito de Compras</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <table id="cartTable" class="table">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Unidad</th>
-                                <th>Descripción</th>
-                                <th>Precio</th>
-                                <th>Cantidad</th>
-                                <th>Total</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Aquí se agregarán los artículos seleccionados -->
-                        </tbody>
-                    </table>
-                    <h5>Total General: <span id="grandTotal">0.00</span></h5>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" id="confirmSaleButton">Confirmar Venta</button>
-                </div>
+    <div class="modal-dialog modalSale">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cartModalLabel">Carrito de Compras</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="cartTable" class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Unidad</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Aquí se agregarán los artículos seleccionados -->
+                    </tbody>
+                </table>
+                <h5>Total General: <span id="grandTotal">0.00</span></h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="confirmSaleButton">Confirmar Venta</button>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Formulario oculto para gestionar el carrito -->
     <form id="cartForm" action="{{ route('purchases.store') }}" method="POST" style="display: none;">
@@ -161,7 +161,16 @@
                             alert("No se puede añadir más de " + unit.stock + " unidades.");
                             return;
                         }
-                        addToCart(selectedProduct.id, unit.unit.id, unit.price, quantity, selectedProduct.name, unit.unit.description, unit.stock);
+                        addToCart(
+                            selectedProduct.id, 
+                            unit.unit.id, 
+                            unit.price, 
+                            quantity, 
+                            selectedProduct.name, 
+                            unit.unit.description, 
+                            unit.stock, 
+                            unit.unit.name // Pasar el nombre de la unidad
+                        );
                     };
                 }
             });
@@ -175,41 +184,41 @@
         $('#productModal').modal('show');
     }
 
-    function addToCart(productId, unitId, price, quantity, productName, description, unitStock) {
-    var existingItem = cart.find(item => item.productId === productId && item.unitId === unitId);
+    // Función corregida para agregar al carrito
+    function addToCart(productId, unitId, price, quantity, productName, description, unitStock, unitName) {
+        var existingItem = cart.find(item => item.productId === productId && item.unitId === unitId);
 
-    if (existingItem) {
-        // Si el producto ya está en el carrito, incrementa la cantidad sin exceder el stock
-        var previousQuantity = existingItem.quantity;
-        var newQuantity = existingItem.quantity + quantity;
+        if (existingItem) {
+            // Si el producto ya está en el carrito, incrementa la cantidad sin exceder el stock
+            var previousQuantity = existingItem.quantity;
+            var newQuantity = existingItem.quantity + quantity;
 
-        if (newQuantity <= unitStock) {
-            existingItem.quantity = newQuantity;
-            alert("Cantidad de " + productName + " incrementada de " + previousQuantity + " a " + newQuantity + ".");
+            if (newQuantity <= unitStock) {
+                existingItem.quantity = newQuantity;
+                alert("Cantidad de " + productName + " incrementada de " + previousQuantity + " a " + newQuantity + ".");
+            } else {
+                alert("No se puede añadir más de " + (unitStock - existingItem.quantity) + " unidades.");
+                return;
+            }
         } else {
-            alert("No se puede añadir más de " + (unitStock - existingItem.quantity) + " unidades.");
-            return;
+            // Agregar nuevo producto y unidad al carrito si no existe
+            var item = { 
+                productId: productId, 
+                unitId: unitId, 
+                price: price, 
+                quantity: quantity, 
+                productName: productName, 
+                description: description,
+                unitName: unitName // Asignar correctamente el nombre de la unidad
+            };
+            cart.push(item);
+
+            alert(quantity + " unidad(es) de " + productName + " han sido añadidas al carrito.");
         }
-    } else {
-        // Agregar nuevo producto y unidad al carrito si no existe
-        var item = { 
-            productId: productId, 
-            unitId: unitId, 
-            price: price, 
-            quantity: quantity, 
-            productName: productName, 
-            description: description 
-        };
-        cart.push(item);
 
-        // Mostrar alerta solo para productos nuevos
-        alert(quantity + " unidad(es) de " + productName + " han sido añadidas al carrito.");
+        updateCartTable();
+        updateCartCount();
     }
-
-    updateCartTable();
-    updateCartCount();
-}
-
 
     function updateCartTable() {
         var cartTableBody = document.getElementById('cartTable').getElementsByTagName('tbody')[0];
@@ -219,7 +228,7 @@
         cart.forEach(function(item) {
             var row = cartTableBody.insertRow();
             row.insertCell(0).innerText = item.productName;
-            row.insertCell(1).innerText = item.unitName; 
+            row.insertCell(1).innerText = item.unitName; // Mostrar el nombre de la unidad
             row.insertCell(2).innerText = item.description;
             row.insertCell(3).innerText = item.price.toFixed(2);
             row.insertCell(4).innerText = item.quantity;
@@ -267,5 +276,75 @@
         document.getElementById('cartForm').submit();
     });
 </script>
+<style>
+    /* Estilos para el modal de "Detalles del Producto" */
+#productModal .modal-lg {
+    max-width: 80%; /* Asegura que el modal no ocupe todo el ancho de la pantalla */
+    width: auto; /* Permite que se ajuste según el contenido */
+}
 
+#productModal .modal-body {
+    max-height: 70vh; /* Limita la altura máxima del modal */
+    overflow-y: auto; /* Habilita el desplazamiento vertical si el contenido es extenso */
+    padding: 15px;
+}
+
+#unitsTable {
+    width: 100%; /* La tabla ocupa todo el ancho disponible */
+    table-layout: auto; /* Las columnas se ajustan automáticamente */
+}
+
+#unitsTable th, #unitsTable td {
+    padding: 8px 12px; /* Espaciado interno en las celdas */
+    text-align: left; /* Alinea el contenido a la izquierda */
+    word-wrap: break-word; /* Permite el ajuste de línea si el texto es muy largo */
+}
+
+/* Estilos para el modal del "Carrito de Compras" */
+.modalSale {
+    max-width: 90%; /* Ajusta el ancho máximo según el espacio disponible */
+    width: auto; /* Deja que el modal se ajuste al contenido */
+}
+
+#cartModal .modal-body {
+    max-height: 70vh; /* Limita la altura máxima del modal */
+    overflow-y: auto; /* Desplazamiento vertical si el contenido es extenso */
+    padding: 15px;
+}
+
+#cartTable {
+    width: 100%; /* La tabla ocupa todo el ancho disponible */
+    table-layout: fixed; /* Asegura que las columnas no se expandan demasiado */
+}
+
+#cartTable th, #cartTable td {
+    padding: 8px 12px; /* Espaciado dentro de las celdas */
+    text-align: left;
+    word-wrap: break-word;
+}
+
+/* Botones en el modal */
+.btn-close {
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-footer .btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    margin: 0 5px; /* Espaciado entre los botones */
+}
+
+/* Estilo adicional para el botón de "Confirmar Venta" */
+#confirmSaleButton {
+    color: white;
+    border: none;
+    border-radius: 4px; /* Bordes redondeados */
+    transition: background-color 0.3s ease;
+}
+
+
+</style>
 @endsection

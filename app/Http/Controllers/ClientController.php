@@ -18,17 +18,22 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 class ClientController extends Controller
 {
     public function indexClient(Request $request)
-    {
-        $sortField = $request->input('sort_field', 'id');
-        $sortDirection = $request->input('sort_direction', 'asc');
-        
-        $users = User::whereIn('role', [3])
-        ->orderBy($sortField, $sortDirection)
-        ->get();
+{
+    $statusFilter = $request->input('status', 'all');
 
+    $query = User::where('role', 3);
 
-        return view('livewire/clients.index', compact('users', 'sortField', 'sortDirection'));
+    if ($statusFilter === 'enabled') {
+        $query->where('status', 1);
+    } elseif ($statusFilter === 'disabled') {
+        $query->where('status', 0);
     }
+
+    $users = $query->get();
+
+    return view('livewire.clients.index', compact('users', 'statusFilter'));
+}
+
 
     public function createCLient()
     {
@@ -41,36 +46,64 @@ class ClientController extends Controller
     }
 
     public function updateClient(Request $request, User $user)
-    {
-        $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'
-            ],
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-        ], [
-            'name.required' => 'El nombre es obligatorio.',
-            'name.string' => 'El nombre debe ser una cadena de texto.',
-            'name.max' => 'El nombre no puede tener más de 255 caracteres.',
-            'name.regex' => 'El nombre solo puede contener letras y espacios.',
-            'email.required' => 'El correo electrónico es obligatorio.',
-            'email.email' => 'El correo electrónico debe ser una dirección de correo válida.',
-            'email.max' => 'El correo electrónico no puede tener más de 255 caracteres.',
-            'email.unique' => 'El correo electrónico ya está en uso.',
-            'role.required' => 'El rol es obligatorio.',
-            'role.string' => 'El rol debe ser una cadena de texto.',
-        ]);
+{
+    $request->validate([
+        'name' => [
+            'required',
+            'string',
+            'max:255',
+            'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?$/'
+        ],
+        'first_surname' => [
+            'required',
+            'string',
+            'max:255',
+            'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?$/'
+        ],
+        'second_surname' => [
+            'nullable',
+            'string',
+            'max:255',
+            'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?$/'
+        ],
+        'ci' => 'required|string|max:20', // Ajusta el tamaño máximo si es necesario
+        'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+        'phone' => 'nullable|string|max:10', // Limitar el tamaño máximo a 10 caracteres
+    ], [
+        'name.required' => 'El nombre es obligatorio.',
+        'name.string' => 'El nombre debe ser una cadena de texto.',
+        'name.max' => 'El nombre no puede tener más de 255 caracteres.',
+        'name.regex' => 'El nombre solo puede contener letras y un espacio.',
+        'first_surname.required' => 'El primer apellido es obligatorio.',
+        'first_surname.string' => 'El primer apellido debe ser una cadena de texto.',
+        'first_surname.max' => 'El primer apellido no puede tener más de 255 caracteres.',
+        'first_surname.regex' => 'El primer apellido solo puede contener letras y un espacio.',
+        'second_surname.string' => 'El segundo apellido debe ser una cadena de texto.',
+        'second_surname.max' => 'El segundo apellido no puede tener más de 255 caracteres.',
+        'second_surname.regex' => 'El segundo apellido solo puede contener letras y un espacio.',
+        'ci.required' => 'La cédula de identidad es obligatoria.',
+        'ci.string' => 'La cédula de identidad debe ser una cadena de texto.',
+        'ci.max' => 'La cédula de identidad no puede tener más de 20 caracteres.',
+        'email.required' => 'El correo electrónico es obligatorio.',
+        'email.email' => 'El correo electrónico debe ser una dirección de correo válida.',
+        'email.max' => 'El correo electrónico no puede tener más de 255 caracteres.',
+        'email.unique' => 'El correo electrónico ya está en uso.',
+        'phone.string' => 'El teléfono debe ser una cadena de texto.',
+        'phone.max' => 'El teléfono no puede tener más de 10 caracteres.',
+    ]);
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            
-        ]);
+    $user->update([
+        'name' => $request->name,
+        'first_surname' => $request->first_surname,
+        'second_surname' => $request->second_surname,
+        'ci' => $request->ci,
+        'email' => $request->email,
+        'phone' => $request->phone,
+    ]);
 
-        return redirect()->route('clients.index')->with('success', 'Usuario actualizado correctamente.');
-    }
+    return redirect()->route('clients.index')->with('success', 'Usuario actualizado correctamente.');
+}
+
 
     public function destroy(User $user)
     {
@@ -86,7 +119,33 @@ class ClientController extends Controller
             'required',
             'string',
             'max:255',
-            'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'
+            'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?$/' // Permite un solo espacio para separar dos nombres
+        ],
+        'first_surname' => [
+            'required',
+            'string',
+            'max:255',
+            'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$/' // Sin espacios en el primer apellido
+        ],
+        'second_surname' => [
+            'nullable', // Cambiar 'required' a 'nullable' para hacerlo opcional
+            'string',
+            'max:255',
+            'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]*$/' // Sin espacios en el segundo apellido
+        ],
+        'ci' => [
+            'required',
+            'string',
+            'max:20', // O el tamaño que consideres apropiado
+            'regex:/^[0-9]{1,20}$/',
+            'unique:users' // Añadir validación para que el CI sea único
+        ],
+        'phone' => [
+            'required',
+            'string',
+            'max:15', // O el tamaño que consideres apropiado
+            'regex:/^[0-9\s\-\+\(\)]*$/',
+            'unique:users' // Añadir validación para que el teléfono sea único
         ],
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:8|confirmed',
@@ -94,7 +153,25 @@ class ClientController extends Controller
         'name.required' => 'El nombre es obligatorio.',
         'name.string' => 'El nombre debe ser una cadena de texto.',
         'name.max' => 'El nombre no puede tener más de 255 caracteres.',
-        'name.regex' => 'El nombre solo puede contener letras y espacios.',
+        'name.regex' => 'El nombre solo puede contener letras y un único espacio para separar nombres.',
+        'first_surname.required' => 'El primer apellido es obligatorio.',
+        'first_surname.string' => 'El primer apellido debe ser una cadena de texto.',
+        'first_surname.max' => 'El primer apellido no puede tener más de 255 caracteres.',
+        'first_surname.regex' => 'El primer apellido solo puede contener letras sin espacios.',
+        'second_surname.nullable' => 'El segundo apellido es opcional.',
+        'second_surname.string' => 'El segundo apellido debe ser una cadena de texto.',
+        'second_surname.max' => 'El segundo apellido no puede tener más de 255 caracteres.',
+        'second_surname.regex' => 'El segundo apellido solo puede contener letras sin espacios.',
+        'ci.required' => 'La cédula de identidad es obligatoria.',
+        'ci.string' => 'La cédula de identidad debe ser una cadena de texto.',
+        'ci.max' => 'La cédula de identidad no puede tener más de 20 caracteres.',
+        'ci.regex' => 'La cédula de identidad solo puede contener números.',
+        'ci.unique' => 'La cédula de identidad ya está en uso.',
+        'phone.required' => 'El teléfono es obligatorio.',
+        'phone.string' => 'El teléfono debe ser una cadena de texto.',
+        'phone.max' => 'El teléfono no puede tener más de 15 caracteres.',
+        'phone.regex' => 'El teléfono solo puede contener números y caracteres especiales permitidos.',
+        'phone.unique' => 'El teléfono ya está en uso.',
         'email.required' => 'El correo electrónico es obligatorio.',
         'email.string' => 'El correo electrónico debe ser una cadena de texto.',
         'email.email' => 'El correo electrónico debe ser una dirección de correo válida.',
@@ -104,8 +181,7 @@ class ClientController extends Controller
         'password.string' => 'La contraseña debe ser una cadena de texto.',
         'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
         'password.confirmed' => 'La confirmación de la contraseña no coincide.',
-        'role.required' => 'El rol es obligatorio.',
-        'role.string' => 'El rol debe ser una cadena de texto.',
+
     ]);
 
     // Definir la contraseña antes de crear el usuario
@@ -114,16 +190,21 @@ class ClientController extends Controller
     // Crear el usuario
     $user = User::create([
         'name' => $request->name,
+        'first_surname' => $request->first_surname,
+        'second_surname' => $request->second_surname, // Este campo puede ser nulo
+        'ci' => $request->ci,
+        'phone' => $request->phone,
         'email' => $request->email,
         'password' => Hash::make($password),
         'role' => 3,
     ]);
 
-    // Enviar el correo electrónico al usuario con la contraseña generada
+
     \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\UserRegistered($user, $password));
 
     return redirect()->route('clients.index')->with('success', 'Usuario creado exitosamente.');
 }
+
 
     public function toggleClientStatus($id)
     {
