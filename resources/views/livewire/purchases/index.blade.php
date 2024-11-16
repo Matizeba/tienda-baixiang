@@ -56,17 +56,7 @@
                                         <i class="fas fa-eye"></i>
                                     </a>
 
-                                    <a href="{{ route('purchases.edit', $purchase->id) }}" class="btn btn-secondary btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-
-                                    <button type="button" class="btn btn-danger btn-sm" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#deletePurchaseModal"
-                                            data-purchase-id="{{ $purchase->id }}"
-                                            data-purchase-amount="{{ $purchase->total_amount }}">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                                    
                                 </td>
                             </tr>
                         @endforeach

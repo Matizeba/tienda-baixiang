@@ -162,14 +162,43 @@ class ProductController extends Controller
 
     $request->validate([
         'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
-        'description' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+        'description' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s.,áéíóúÁÉÍÓÚñÑ]+$/'],
         'category_id' => 'required|exists:categories,id',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        'units' => 'required|array', // Se espera un array de unidades
-        'units.*.id' => 'required|exists:units,id', // Validar cada unidad
-        'units.*.price' => 'required|numeric|min:0', // Precio por unidad
-        'units.*.stock' => 'required|integer|min:0', // Stock por unidad
+        'units' => 'required|array',
+        'units.*.id' => 'required|exists:units,id',
+        'units.*.price' => 'required|numeric|min:0',
+        'units.*.stock' => 'required|integer|min:0',
+    ], [
+        'name.required' => 'El campo nombre es obligatorio.',
+        'name.string' => 'El campo nombre debe ser una cadena de texto.',
+        'name.max' => 'El campo nombre no puede tener más de 255 caracteres.',
+        'name.regex' => 'El campo nombre solo puede contener letras y espacios.',
+    
+        'description.required' => 'El campo descripción es obligatorio.',
+        'description.string' => 'El campo descripción debe ser una cadena de texto.',
+        'description.max' => 'El campo descripción no puede tener más de 255 caracteres.',
+        'description.regex' => 'El campo descripción solo puede contener letras, números, espacios, comas, puntos y acentos.',
+    
+        'category_id.required' => 'Debe seleccionar una categoría.',
+        'category_id.exists' => 'La categoría seleccionada no es válida.',
+    
+        'image.image' => 'El archivo debe ser una imagen.',
+        'image.mimes' => 'La imagen debe estar en formato jpeg, png, jpg o gif.',
+        'image.max' => 'La imagen no puede superar los 2 MB.',
+    
+        'units.required' => 'Debe proporcionar al menos una unidad.',
+        'units.array' => 'Las unidades deben estar en formato de arreglo.',
+        'units.*.id.required' => 'Debe seleccionar una unidad.',
+        'units.*.id.exists' => 'La unidad seleccionada no es válida.',
+        'units.*.price.required' => 'Debe especificar el precio de cada unidad.',
+        'units.*.price.numeric' => 'El precio debe ser un número.',
+        'units.*.price.min' => 'El precio no puede ser menor que 0.',
+        'units.*.stock.required' => 'Debe especificar el stock de cada unidad.',
+        'units.*.stock.integer' => 'El stock debe ser un número entero.',
+        'units.*.stock.min' => 'El stock no puede ser menor que 0.',
     ]);
+    
 
     // Manejo de la imagen
     if ($request->hasFile('image')) {

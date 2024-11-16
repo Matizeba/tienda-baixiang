@@ -16,15 +16,23 @@
             Formulario de Registro de Producto
         </div>
         <div class="card-body">
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+        @if ($errors->any())
+            <script>
+                let errorMessages = `
+                    @foreach ($errors->all() as $error)
+                        - {{ $error }}<br>
+                    @endforeach
+                `;
+
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Errores encontrados!',
+                    html: errorMessages, // Usa 'html' para permitir saltos de línea
+                    confirmButtonText: 'Aceptar'
+                });
+            </script>
+        @endif
+
 
             <form id="productForm" action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
