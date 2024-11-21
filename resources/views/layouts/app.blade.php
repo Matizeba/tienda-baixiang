@@ -91,10 +91,15 @@
                     <i class="fas fa-shopping-cart"></i>
                     <span class="mx-3">Ventas</span>
                 </a>
-                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('reports.sales_by_month') }}">
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('reports.topSellingProduct') }}">
                     <i class="fas fa-chart-bar"></i>
-                    <span class="mx-3">Reporte de Ventas por Mes</span>
+                    <span class="mx-3">Reporte Producto mas vendido</span>
                 </a>
+                <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('reports.salesReport') }}">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="mx-3">Reporte de Ventas Completadas</span>
+                </a>
+
             @elseif(auth()->user()->role == 2)
                 <a class="nav-link flex items-center mt-4 py-2 px-6 hover:bg-blue-500" href="{{ route('products.index') }}">
                     <i class="fas fa-box"></i>

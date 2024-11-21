@@ -15,6 +15,22 @@ use App\Mail\TestEmail;
 
 use App\Http\Controllers\SalesReportController;
 
+// routes/web.php
+
+use App\Http\Controllers\AlertController;
+use App\Http\Controllers\ReportController;
+
+Route::get('/reports/top-selling-product', [ReportController::class, 'topSellingProduct'])->name('reports.topSellingProduct');
+Route::get('reports/top-selling-product-pdf', [ReportController::class, 'generatePdf'])->name('reports.generatePdf');
+Route::get('/reports/sales', [ReportController::class, 'salesReport'])->name('reports.salesReport');
+Route::get('/reports/sales/pdf', [ReportController::class, 'generateSalesPdf'])->name('reports.generateSalesPdf');
+
+// Ruta para mostrar todas las alertas
+Route::get('/alerts', [AlertController::class, 'index'])->name('alerts.index');
+Route::patch('/alerts/{alert}/mark-as-read', [AlertController::class, 'markAsRead'])->name('alerts.markAsRead');
+Route::get('/client/orders/status', [OrderController::class, 'status'])->name('client.orders.status');
+
+
 Route::get('/reports/sales-by-month', [SalesReportController::class, 'salesByMonth'])->name('sales.by.month');
 Route::get('/reports/sales-by-month', [SalesReportController::class, 'salesByMonth'])->name('reports.sales_by_month');
 Route::get('/reports/export-excel', [SalesReportController::class, 'exportToExcel'])->name('reports.exportExcel');
@@ -27,6 +43,7 @@ Route::post('dashboard/update-password', [DashboardController::class, 'updatePas
     ->middleware(['auth', 'verified'])
     ->name('password.update');
 //Empleados
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -72,7 +72,9 @@
                         <div class="card-body-icon">
                             <i class="fas fa-users"></i>
                         </div>
-                        <div class="mr-5">45 Nuevos Usuarios!</div>
+                        <div class="mr-5" style="color: black;">Usuarios</div>
+
+                        
                     </div>
                     <a class="card-footer text-white clearfix small z-1" href="{{ route('users.index') }}">
                         <span class="float-left">Ver Detalles</span>
@@ -89,7 +91,7 @@
                         <div class="card-body-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <div class="mr-5">15 Nuevas Ventas!</div>
+                        <div class="mr-5" style="color: black;">Nuevas Ventas</div>
                     </div>
                     <a class="card-footer text-white clearfix small z-1" href="#">
                         <span class="float-left">Ver Detalles</span>
@@ -106,7 +108,7 @@
                         <div class="card-body-icon">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
-                        <div class="mr-5">3 Reportes Pendientes!</div>
+                        <div class="mr-5" style="color: black;">Reportes Pendientes</div>
                     </div>
                     <a class="card-footer text-white clearfix small z-1" href="#">
                         <span class="float-left">Ver Detalles</span>
@@ -123,14 +125,25 @@
                         <div class="card-body-icon">
                             <i class="fas fa-bell"></i>
                         </div>
-                        <div class="mr-5">Alerta de Seguridad!</div>
+                        <div class="mr-5" style="color: black;">Alertas </div>
                     </div>
-                    <a class="card-footer text-white clearfix small z-1" href="#">
-                        <span class="float-left">Ver Detalles</span>
-                        <span class="float-right">
-                            <i class="fas fa-angle-right"></i>
-                        </span>
-                    </a>
+                    @if(auth()->user()->role == 1)
+                        <!-- Si el rol es 1 (administrador), redirige a la vista de alertas -->
+                        <a class="card-footer text-white clearfix small z-1" href="{{ route('alerts.index') }}">
+                            <span class="float-left">Ver Detalles</span>
+                            <span class="float-right">
+                                <i class="fas fa-angle-right"></i>
+                            </span>
+                        </a>
+                    @else
+                        <!-- Si el rol es otro (cliente, por ejemplo), redirige al estado de compras -->
+                        <a class="card-footer text-white clearfix small z-1" href="{{ route('client.orders.status') }}">
+                            <span class="float-left">Ver Estado de Compras</span>
+                            <span class="float-right">
+                                <i class="fas fa-angle-right"></i>
+                            </span>
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

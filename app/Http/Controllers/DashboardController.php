@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Store;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Alert;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Redirect;
 
 class DashboardController extends Controller
 {
@@ -21,8 +24,9 @@ class DashboardController extends Controller
         // Usuarios
         $sellersCount = User::where('role', '2')->count();
         $clientsCount = User::where('role', '3')->count();
+        $alerts = Alert::where('status', 0)->count();
 
-        return view('dashboard', compact('storeCount', 'storeCount1', 'sellersCount', 'clientsCount', 'user'));
+        return view('dashboard', compact('storeCount', 'storeCount1', 'sellersCount', 'clientsCount', 'user','alerts'));
     }
 
 
