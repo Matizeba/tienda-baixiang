@@ -20,6 +20,15 @@ use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ReportController;
 
+use App\Http\Controllers\reportController2;
+
+
+// Ruta para mostrar la vista del reporte de compradores
+Route::get('/reports/top-buyers', [reportController2::class, 'topBuyersReport'])->name('reports.top_buyers_report');
+
+// Ruta para generar el PDF del reporte de compradores
+Route::get('/reports/top-buyers/pdf', [reportController2::class, 'generateTopBuyersPdf'])->name('reports.top_buyers_report_pdf');
+
 Route::get('/reports/top-selling-product', [ReportController::class, 'topSellingProduct'])->name('reports.topSellingProduct');
 Route::get('reports/top-selling-product-pdf', [ReportController::class, 'generatePdf'])->name('reports.generatePdf');
 Route::get('/reports/sales', [ReportController::class, 'salesReport'])->name('reports.salesReport');

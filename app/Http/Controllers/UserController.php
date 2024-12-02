@@ -20,7 +20,7 @@ class UserController extends Controller
     public function index(Request $request)
 {
     
-    $statusFilter = $request->input('status', 'all'); // Agregamos el filtro de estado
+    $statusFilter = $request->input('status', 'all');
 
     // Filtrar por roles 1 y 2
     $query = User::whereIn('role', [1, 2]);

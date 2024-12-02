@@ -18,15 +18,15 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
-        'first_surname', // Nuevo campo
-        'second_surname', // Nuevo campo (opcional)
-        'ci', // Nuevo campo
-        'phone', // Nuevo campo (opcional)
+        'first_surname',
+        'second_surname',
+        'ci', 
+        'phone',
         'email',
         'password',
         'role',
         'userid',
-        'passwordUpdate', // Este campo ya existente también se puede incluir si es necesario
+        'passwordUpdate', 
     ];
 
     /**
