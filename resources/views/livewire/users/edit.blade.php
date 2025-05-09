@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('breadcrumbs')
- <a href="{{ route('users.index') }}" class="text-white">/ Usuarios </a> <h1 class="text-white" > / Editar</h1>
+    <a href="{{ route('users.index') }}" class="text-white">/ Usuarios </a> <h1 class="text-white" > / Editar</h1>
 @endsection
 
 @section('content')
@@ -34,6 +34,26 @@
                 <div class="form-group">
                     <label for="name">Nombre</label>
                     <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="first_surname">Primer Apellido</label>
+                    <input type="text" name="first_surname" id="first_surname" value="{{ old('first_surname', $user->first_surname) }}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="second_surname">Segundo Apellido (opcional)</label>
+                    <input type="text" name="second_surname" id="second_surname" value="{{ old('second_surname', $user->second_surname) }}" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="ci">Cédula de Identidad</label>
+                    <input type="text" name="ci" id="ci" value="{{ old('ci', $user->ci) }}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}" class="form-control" required>
                 </div>
 
                 <div class="form-group">
@@ -72,6 +92,10 @@
                 <p>Estás a punto de actualizar los datos del usuario con los siguientes detalles:</p>
                 <ul>
                     <li><strong>Nombre:</strong> <span id="modalName"></span></li>
+                    <li><strong>Primer Apellido:</strong> <span id="modalFirstSurname"></span></li>
+                    <li><strong>Segundo Apellido:</strong> <span id="modalSecondSurname"></span></li>
+                    <li><strong>Cédula de Identidad:</strong> <span id="modalCI"></span></li>
+                    <li><strong>Teléfono:</strong> <span id="modalPhone"></span></li>
                     <li><strong>Correo Electrónico:</strong> <span id="modalEmail"></span></li>
                     <li><strong>Rol:</strong> <span id="modalRole"></span></li>
                 </ul>
@@ -89,15 +113,27 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Cargar datos en el modal cuando se hace clic en "Actualizar"
         const nameInput = document.getElementById('name');
+        const firstSurnameInput = document.getElementById('first_surname');
+        const secondSurnameInput = document.getElementById('second_surname');
+        const ciInput = document.getElementById('ci');
+        const phoneInput = document.getElementById('phone');
         const emailInput = document.getElementById('email');
         const roleInput = document.getElementById('role');
 
         const modalName = document.getElementById('modalName');
+        const modalFirstSurname = document.getElementById('modalFirstSurname');
+        const modalSecondSurname = document.getElementById('modalSecondSurname');
+        const modalCI = document.getElementById('modalCI');
+        const modalPhone = document.getElementById('modalPhone');
         const modalEmail = document.getElementById('modalEmail');
         const modalRole = document.getElementById('modalRole');
 
         document.querySelector('[data-target="#confirmModal"]').addEventListener('click', function() {
             modalName.textContent = nameInput.value;
+            modalFirstSurname.textContent = firstSurnameInput.value;
+            modalSecondSurname.textContent = secondSurnameInput.value;
+            modalCI.textContent = ciInput.value;
+            modalPhone.textContent = phoneInput.value;
             modalEmail.textContent = emailInput.value;
             modalRole.textContent = roleInput.options[roleInput.selectedIndex].text;
         });
@@ -109,4 +145,3 @@
     });
 </script>
 @endsection
-

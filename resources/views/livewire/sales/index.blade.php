@@ -28,6 +28,7 @@
                             <th scope="col"><i class="fas fa-user"></i> Vendedor</th>
                             <th scope="col"><i class="fas fa-user"></i> Cliente</th>
                             <th scope="col"><i class="fas fa-money-bill"></i> Monto Total</th>
+                            <th scope="col"><i class="fas fa-money-bill"></i> Tipo de Venta</th>
                             <th scope="col"><i class="fas fa-info-circle"></i> Estado</th>
                             <th scope="col"><i class="fas fa-calendar-alt"></i> Fecha de Creación</th>
                             <th scope="col"><i class="fas fa-cogs"></i> Acciones</th>
@@ -40,6 +41,7 @@
                                 <td>{{ $sale->user ? $sale->user->name : 'Desconocido' }}</td>
                                 <td>{{ $sale->customer ? $sale->customer->name : 'Desconocido' }}</td>
                                 <td>{{ $sale->total_amount }} Bs</td>
+                                <td>{{ $sale->tipe_sale}}</td>
                                 <td>
                                     @if ($sale->status == 'completed')
                                         <span class="badge bg-success">Completada</span>
@@ -51,19 +53,16 @@
                                 </td>
                                 <td>{{ $sale->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
-                                    <!-- Acción Ver Detalles -->
                                     <a href="{{ route('sales.show', $sale->id) }}" class="btn btn-info btn-sm">
                                         <i class="fas fa-eye"></i>
                                     </a>
 
-                                    <!-- Acción Editar (solo si la venta no está completada) -->
-                                    @if ($sale->status != 'completed' && (auth()->user()->role == 1 || auth()->id() == $sale->user_id))
-                                        <a href="{{ route('sales.edit', $sale->id) }}" class="btn btn-secondary btn-sm">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    @endif
+                                    
+                                    <a href="{{ route('sales.edit', $sale->id) }}" class="btn btn-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                   
 
-                                    <!-- Acción Eliminar -->
                                     <button type="button" class="btn btn-danger btn-sm" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#deleteSaleModal"
@@ -76,6 +75,11 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Agregar los enlaces de paginación -->
+            <div class="d-flex justify-content-center">
+            {{ $sales->links() }}
             </div>
         </div>
     </div>
@@ -109,17 +113,15 @@
     document.addEventListener('DOMContentLoaded', function () {
         var deleteSaleModal = document.getElementById('deleteSaleModal');
         deleteSaleModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget; // Botón que abrió el modal
-            var saleId = button.getAttribute('data-sale-id'); // ID de la venta
-            var saleAmount = button.getAttribute('data-sale-amount'); // Monto total de la venta
+            var button = event.relatedTarget;
+            var saleId = button.getAttribute('data-sale-id');
+            var saleAmount = button.getAttribute('data-sale-amount');
 
-            // Actualizar el texto del modal
             var saleIdElement = document.getElementById('saleId');
             var saleAmountElement = document.getElementById('saleAmount');
             saleIdElement.textContent = saleId;
             saleAmountElement.textContent = saleAmount;
 
-            // Configurar la acción del formulario de eliminación
             var form = deleteSaleModal.querySelector('#deleteSaleForm');
             form.action = '/sales/' + saleId;
         });

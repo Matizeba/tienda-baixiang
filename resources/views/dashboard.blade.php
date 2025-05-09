@@ -8,7 +8,7 @@
         </div>
     @endif
 
-    @if (Auth::user()->role == 1 && Auth::user()->id != 1 && Auth::user()->passwordUpdate  || Auth::user()->role == 2 && Auth::user()->passwordUpdate)
+    @if(auth()->user()->role != 3 && auth()->user()->id != 1 && auth()->user()->passwordUpdate)
     <div class="container-fluid mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-6 col-md-8">
@@ -63,7 +63,8 @@
     </div>
 </div>
 
-        @else
+        @else 
+        @if (Auth::user()->role != 3)
         <div class="row">
             <div class="col-lg-3 col-md-6">
                 <div class="card text-white bg-info mb-4">
@@ -71,7 +72,9 @@
                         <div class="card-body-icon">
                             <i class="fas fa-users"></i>
                         </div>
-                        <div class="mr-5">45 Nuevos Usuarios!</div>
+                        <div class="mr-5" style="color: black;">Usuarios</div>
+
+                        
                     </div>
                     <a class="card-footer text-white clearfix small z-1" href="{{ route('users.index') }}">
                         <span class="float-left">Ver Detalles</span>
@@ -88,7 +91,7 @@
                         <div class="card-body-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <div class="mr-5">15 Nuevas Ventas!</div>
+                        <div class="mr-5" style="color: black;">Nuevas Ventas</div>
                     </div>
                     <a class="card-footer text-white clearfix small z-1" href="#">
                         <span class="float-left">Ver Detalles</span>
@@ -105,7 +108,7 @@
                         <div class="card-body-icon">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
-                        <div class="mr-5">3 Reportes Pendientes!</div>
+                        <div class="mr-5" style="color: black;">Reportes Pendientes</div>
                     </div>
                     <a class="card-footer text-white clearfix small z-1" href="#">
                         <span class="float-left">Ver Detalles</span>
@@ -122,14 +125,25 @@
                         <div class="card-body-icon">
                             <i class="fas fa-bell"></i>
                         </div>
-                        <div class="mr-5">Alerta de Seguridad!</div>
+                        <div class="mr-5" style="color: black;">Alertas </div>
                     </div>
-                    <a class="card-footer text-white clearfix small z-1" href="#">
-                        <span class="float-left">Ver Detalles</span>
-                        <span class="float-right">
-                            <i class="fas fa-angle-right"></i>
-                        </span>
-                    </a>
+                    @if(auth()->user()->role == 1)
+                        <!-- Si el rol es 1 (administrador), redirige a la vista de alertas -->
+                        <a class="card-footer text-white clearfix small z-1" href="{{ route('alerts.index') }}">
+                            <span class="float-left">Ver Detalles</span>
+                            <span class="float-right">
+                                <i class="fas fa-angle-right"></i>
+                            </span>
+                        </a>
+                    @else
+                        <!-- Si el rol es otro (cliente, por ejemplo), redirige al estado de compras -->
+                        <a class="card-footer text-white clearfix small z-1" href="{{ route('client.orders.status') }}">
+                            <span class="float-left">Ver Estado de Compras</span>
+                            <span class="float-right">
+                                <i class="fas fa-angle-right"></i>
+                            </span>
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -216,6 +230,7 @@
                 </div>
             </div>
         </div>
+        @endif
     @endif
 
 </div>

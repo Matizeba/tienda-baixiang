@@ -28,12 +28,24 @@
             <i class="fas fa-users"></i> Usuarios
         </div>
         <div class="card-body">
+            <!-- Select para filtrar usuarios -->
+            <form method="GET" action="{{ route('users.index') }}">
+                <div class="mb-3">
+                    <label for="status" class="form-label">Filtrar por estado:</label>
+                    <select id="status" name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {{ $statusFilter === 'all' ? 'selected' : '' }}>Todos</option>
+                        <option value="enabled" {{ $statusFilter === 'enabled' ? 'selected' : '' }}>Habilitados</option>
+                        <option value="disabled" {{ $statusFilter === 'disabled' ? 'selected' : '' }}>Deshabilitados</option>
+                    </select>
+                </div>
+            </form>
+
             <div class="table-responsive">
                 <table class="table table-custom">
                     <thead>
                         <tr>
                             <th scope="col"><i class="fas fa-hashtag"></i> Nro.</th>
-                            <th scope="col"><i class="fas fa-user"></i> Nombre</th>
+                            <th scope="col"><i class="fas fa-user"></i> Nombre Completo</th>
                             <th scope="col"><i class="fas fa-envelope"></i> Correo Electrónico</th>
                             <th scope="col"><i class="fas fa-user-tag"></i> Rol</th>
                             @if(Auth::user()->role == 1)
@@ -47,7 +59,7 @@
                         @foreach ($users as $user)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->name }} {{ $user->first_surname }} {{ $user->second_surname}}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>
                                     @if ($user->role == 1)
@@ -75,7 +87,6 @@
                                     <button type="button" class="btn {{ $user->status ? 'btn-danger' : 'btn-success' }}" data-bs-toggle="modal" data-bs-target="#toggleStatusModal" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-user-status="{{ $user->status }}">
                                         <i class="fas {{ $user->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i> {{ $user->status ? '' : '' }}
                                     </button>
-                                    
                                 </td>
                                 @endif
                             </tr>
@@ -83,6 +94,10 @@
                     </tbody>
                 </table>
             </div>
+            <div class="pagination-links">
+                 {{ $users->links() }}
+            </div>
+
         </div>
     </div>
 </div>
@@ -133,4 +148,3 @@
 </script>
 @endpush
 @endsection
-

@@ -35,8 +35,28 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="first_surname">Primer Apellido</label>
+                    <input type="text" name="first_surname" id="first_surname" class="form-control" value="{{ old('first_surname') }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="second_surname">Segundo Apellido</label>
+                    <input type="text" name="second_surname" id="second_surname" class="form-control" value="{{ old('second_surname') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="ci">Cédula de Identidad</label>
+                    <input type="text" name="ci" id="ci" class="form-control" value="{{ old('ci') }}" required>
+                </div>
+
+                <div class="form-group">
                     <label for="email">Correo Electrónico</label>
                     <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input type="text" name="phone" id="phone" class="form-control" value="{{ old('phone') }}">
                 </div>
 
                 <div class="form-group">

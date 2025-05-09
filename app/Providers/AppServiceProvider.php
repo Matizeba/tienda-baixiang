@@ -9,6 +9,12 @@ use App\Models\Product;
 use App\Observers\ProductObserver;
 use App\Models\Category;
 use App\Observers\CategoryObserver;
+use App\Models\Sale;
+use App\Observers\SaleObserver;
+use App\Models\ProductUnit;
+use App\Observers\ProductUnitObserver;
+
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,5 +29,7 @@ class AppServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         Product::observe(ProductObserver::class);
         Category::observe(CategoryObserver::class);
+        Sale::observe(SaleObserver::class);
+        ProductUnit::observe(ProductUnitObserver::class);
     }
 }

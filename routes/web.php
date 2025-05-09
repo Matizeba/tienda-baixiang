@@ -6,11 +6,43 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\TestEmail;
+
+use App\Http\Controllers\SalesReportController;
+
+// routes/web.php
+
+use App\Http\Controllers\AlertController;
+use App\Http\Controllers\ReportController;
+
+use App\Http\Controllers\reportController2;
+
+
+// Ruta para mostrar la vista del reporte de compradores
+Route::get('/reports/top-buyers', [reportController2::class, 'topBuyersReport'])->name('reports.top_buyers_report');
+
+// Ruta para generar el PDF del reporte de compradores
+Route::get('/reports/top-buyers/pdf', [reportController2::class, 'generateTopBuyersPdf'])->name('reports.top_buyers_report_pdf');
+
+Route::get('/reports/top-selling-product', [ReportController::class, 'topSellingProduct'])->name('reports.topSellingProduct');
+Route::get('reports/top-selling-product-pdf', [ReportController::class, 'generatePdf'])->name('reports.generatePdf');
+Route::get('/reports/sales', [ReportController::class, 'salesReport'])->name('reports.salesReport');
+Route::get('/reports/sales/pdf', [ReportController::class, 'generateSalesPdf'])->name('reports.generateSalesPdf');
+
+// Ruta para mostrar todas las alertas
+Route::get('/alerts', [AlertController::class, 'index'])->name('alerts.index');
+Route::patch('/alerts/{alert}/mark-as-read', [AlertController::class, 'markAsRead'])->name('alerts.markAsRead');
+Route::get('/client/orders/status', [OrderController::class, 'status'])->name('client.orders.status');
+
+
+Route::get('/reports/sales-by-month', [SalesReportController::class, 'salesByMonth'])->name('sales.by.month');
+Route::get('/reports/sales-by-month', [SalesReportController::class, 'salesByMonth'])->name('reports.sales_by_month');
+Route::get('/reports/export-excel', [SalesReportController::class, 'exportToExcel'])->name('reports.exportExcel');
 
 Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -20,6 +52,7 @@ Route::post('dashboard/update-password', [DashboardController::class, 'updatePas
     ->middleware(['auth', 'verified'])
     ->name('password.update');
 //Empleados
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -54,9 +87,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::get('/products/view', [ProductController::class, 'view'])->name('products.view');
+    Route::get('/products/surtir', [ProductController::class, 'surtir'])->name('products.surtir');
     Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
     Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
-
+    
+    Route::get('/units', [ProductController::class, 'unitsIndex'])->name('units.index');
+    Route::get('/units/create', [ProductController::class, 'unitsCreate'])->name('units.create');
+    Route::post('/units', [ProductController::class, 'unitsStore'])->name('units.store');
+    Route::get('/units/{unit}/edit', [ProductController::class, 'unitsEdit'])->name('units.edit');
+    Route::put('/units/{unit}', [ProductController::class, 'unitsUpdate'])->name('units.update');
 
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
@@ -67,6 +106,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     Route::get('/categories/export', [CategoryController::class, 'exportToExcel'])->name('categories.export');
 
+    Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
+    Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
+    Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
+    Route::delete('/sales/{id}', [SaleController::class, 'destroy'])->name('sales.destroy');
+    Route::get('/sales/{id}', [SaleController::class, 'show'])->name('sales.show');
+    Route::get('/sales/get-units', [SaleController::class, 'getUnits'])->name('sales.getUnits');
+    Route::get('/sales/{id}/edit', [SaleController::class, 'edit'])->name('sales.edit');
+    Route::put('/sales/{id}', [SaleController::class, 'update'])->name('sales.update');
+    Route::get('sales/{id}/receipt', [SaleController::class, 'printReceipt'])->name('sales.receipt');
+    Route::post('/sales/{id}/change-status', [SaleController::class, 'changeStatus'])->name('sales.changeStatus');
+
+    Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
+    Route::post('/purchases', [PurchaseController::class, 'store'])->name('purchases.store');
+    Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
+    Route::get('/purchases/view', [PurchaseController::class, 'view'])->name('purchases.view');
+    Route::delete('/purchases/{id}', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
+    Route::get('/purchases/{id}', [PurchaseController::class, 'show'])->name('purchases.show');
+    Route::get('/purchases/get-units', [PurchaseController::class, 'getUnits'])->name('purchases.getUnits');
+    Route::get('/purchases/{id}/edit', [PurchaseController::class, 'edit'])->name('purchases.edit');
+    Route::put('/purchases/{id}', [PurchaseController::class, 'update'])->name('purchases.update');
+    Route::get('/purchases/{id}/receipt', [PurchaseController::class, 'printReceipt'])->name('purchases.receipt');
+    Route::post('/purchases/{id}/change-status', [PurchaseController::class, 'changeStatus'])->name('purchases.changeStatus');
+    Route::post('/products/supply', [ProductController::class, 'supply'])->name('products.supply');
+    Route::post('/products/remove', [ProductController::class, 'remove'])->name('products.remove');
+
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -74,34 +138,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-// Mostrar la lista de ventas
-Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
 
-// Mostrar el formulario para crear una nueva venta
-Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
-
-// Almacenar una nueva venta
-Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
 
 // Mostrar los detalles de una venta específica
 
 
-
-Route::get('sales', [SaleController::class, 'index'])->name('sales.index'); // Listar todas las ventas
-Route::get('sales/create', [SaleController::class, 'create'])->name('sales.create'); // Mostrar formulario de creación
-Route::post('sales', [SaleController::class, 'store'])->name('sales.store'); // Almacenar nueva venta
-Route::get('sales/{id}/edit', [SaleController::class, 'edit'])->name('sales.edit'); // Mostrar formulario de edición
-Route::put('sales/{id}', [SaleController::class, 'update'])->name('sales.update'); // Actualizar venta existente
-Route::delete('sales/{id}', [SaleController::class, 'destroy'])->name('sales.destroy'); // Eliminar venta
-Route::get('/sales/{id}', [SaleController::class, 'show'])->name('sales.show');
-Route::post('/products/details', [ProductController::class, 'getDetails']);
+// Eliminar venta
 
 
 
-Route::view('/', 'welcome');
-/*Route::get('/',function(){
+Route::middleware(['auth'])->group(function () {
+   
+
+});
+
+
+
+Route::get('/',function(){
     return redirect()->route('login');
-});*/
+});
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])

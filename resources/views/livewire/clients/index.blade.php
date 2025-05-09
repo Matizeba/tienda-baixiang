@@ -28,14 +28,26 @@
             <i class="fas fa-users"></i> Clientes
         </div>
         <div class="card-body">
+            <!-- Select para filtrar clientes -->
+            <form method="GET" action="{{ route('clients.index') }}">
+                <div class="mb-3">
+                    <label for="status" class="form-label">Filtrar por estado:</label>
+                    <select id="status" name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {{ $statusFilter === 'all' ? 'selected' : '' }}>Todos</option>
+                        <option value="enabled" {{ $statusFilter === 'enabled' ? 'selected' : '' }}>Habilitados</option>
+                        <option value="disabled" {{ $statusFilter === 'disabled' ? 'selected' : '' }}>Deshabilitados</option>
+                    </select>
+                </div>
+            </form>
+
             <div class="table-responsive">
                 <table class="table table-custom">
                     <thead>
                         <tr>
                             <th scope="col"><i class="fas fa-hashtag"></i> Nro.</th>
-                            <th scope="col"><i class="fas fa-user"></i> Nombre</th>
+                            <th scope="col"><i class="fas fa-user"></i> Nombre Completo</th>
                             <th scope="col"><i class="fas fa-envelope"></i> Correo Electrónico</th>
-                            <th scope="col"><i class="fas fa-user-tag"></i> Rol</th>
+                            <th scope="col"><i class="fas fa-phone"></i> Teléfono</th>
                             @if(Auth::user()->role == 1)
                             <th scope="col"><i class="fas fa-cogs"></i> Estado</th>
                             <th scope="col"><i class="fas fa-id-badge"></i> ID Usuario</th>
@@ -47,17 +59,11 @@
                         @foreach ($users as $user)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->name }} {{ $user->first_surname }} {{ $user->second_surname }}</td>
                                 <td>{{ $user->email }}</td>
-                                <td>
-                                    @if ($user->role == 1)
-                                        <i class="fas fa-user-shield"></i> Administrador
-                                    @elseif ($user->role == 2)
-                                        <i class="fas fa-user-tie"></i> Vendedor
-                                    @elseif ($user->role == 3)
-                                        <i class="fas fa-user"></i> Cliente
-                                    @endif
-                                </td>
+
+                                <td>{{ $user->phone }}</td>
+
                                 @if(Auth::user()->role == 1)
                                 <td>
                                     <span class="badge {{ $user->status == 1 ? 'bg-success' : 'bg-danger' }}">
@@ -73,7 +79,7 @@
                                         <i class="fas fa-edit"></i> 
                                     </a>
                                     <button type="button" class="btn {{ $user->status ? 'btn-danger' : 'btn-success' }}" data-bs-toggle="modal" data-bs-target="#toggleStatusModal" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-user-status="{{ $user->status }}">
-                                        <i class="fas {{ $user->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i> {{ $user->status ? '' : '' }}
+                                        <i class="fas {{ $user->status ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
                                     </button>
                                 </td>
                                 @endif

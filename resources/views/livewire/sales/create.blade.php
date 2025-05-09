@@ -2,201 +2,311 @@
 
 @section('content')
 <div class="container">
-    <h1 class="mb-4">Crear Venta</h1>
+    <h2>Crear Venta</h2>
 
-    <form id="sale-form" action="{{ route('sales.store') }}" method="POST">
-        @csrf
-
-        <!-- Selección del cliente -->
-        <div class="mb-3">
-            <label for="customer_id" class="form-label">Cliente</label>
-            <select id="customer_id" name="customer_id" class="form-select" required>
-                <option value="">Selecciona un cliente</option>
-                @foreach ($customers as $customer)
-                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="customerInput" class="form-label">Seleccionar Cliente</label>
+            <input list="customers" id="customerInput" class="form-control" placeholder="Escriba o seleccione un cliente" required>
+            <datalist id="customers">
+                @foreach($customers as $customer)
+                    <option value="{{ $customer->name }} {{ $customer->first_surname }} {{ $customer->second_surname }} - CI: {{ $customer->ci }}" data-id="{{ $customer->id }}"></option>
                 @endforeach
-            </select>
+            </datalist>
         </div>
-
-        <!-- Selección del producto -->
-        <div class="mb-4">
-            <label for="product-select" class="form-label"><i class="fas fa-box"></i> Agregar Producto</label>
-            <div class="d-flex">
-                <select id="product-select" class="form-select me-3">
-                    <option value="">Selecciona un producto</option>
-                    @foreach ($products as $product)
-                        @if ($product->quantity > 0)
-                            <option value="{{ $product->id }}" 
-                                    data-price="{{ $product->price }}" 
-                                    data-quantity="{{ $product->quantity }}">
-                                {{ $product->name }} (Disponible: {{ $product->quantity }})
-                            </option>
-                        @endif
-                    @endforeach
-                </select>
-                <button type="button" id="add-product-btn" class="btn btn-secondary">
-                    <i class="fas fa-plus"></i> Agregar Producto
-                </button>
-            </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cartModal">
+                <i class="fas fa-shopping-cart"></i> Carrito <span class="badge bg-secondary" id="cartCount">0</span>
+            </button>
         </div>
+    </div>
 
-        <!-- Tabla de productos -->
-        <table id="products-table" class="table">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Fila de productos agregados aquí -->
-            </tbody>
-        </table>
+    <div class="mb-3">
+        <label for="productInput" class="form-label">Seleccionar Producto</label>
+        <input list="products" id="productInput" class="form-control" placeholder="Escriba o seleccione un producto" required onchange="updateUnitsFromInput()">
+        <datalist id="products">
+            @foreach($products as $product)
+                <option value="{{ $product->name }}" data-id="{{ $product->id }}"></option>
+            @endforeach
+        </datalist>
+    </div>
 
-        <button type="button" id="confirm-sale-btn" class="btn btn-primary">Confirmar Venta</button>
-    </form>
-</div>
+    <table id="unitsTable" class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Unidad</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Cantidad Disponible</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Las unidades se llenarán aquí según el producto seleccionado -->
+        </tbody>
+    </table>
 
-<!-- Modal de confirmación -->
-<div class="modal fade" id="confirmSaleModal" tabindex="-1" aria-labelledby="confirmSaleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmSaleModalLabel">Confirmar Venta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <h6>Detalles de la venta:</h6>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sale-summary">
-                        <!-- Resumen de productos aquí -->
-                    </tbody>
-                </table>
-                <p><strong>Total de la venta: </strong><span id="total-sale-amount">0</span> Bs</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="submit-sale-btn" class="btn btn-primary">Confirmar Venta</button>
+    <!-- Modal para confirmar la cantidad -->
+    <div class="modal fade" id="confirmQuantityModal" tabindex="-1" aria-labelledby="confirmQuantityModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmQuantityModalLabel">Confirmar Cantidad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Producto: <span id="confirmProductName"></span></p>
+                    <p>Descripción: <span id="confirmDescription"></span></p>
+                    <p>Precio: <span id="confirmPrice"></span></p>
+                    <label for="confirmQuantityInput" class="form-label">Cantidad:</label>
+                    <input type="number" id="confirmQuantityInput" class="form-control" min="1" value="1">
+                    <p>Total: <span id="confirmTotal"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="addToCartButton">Añadir al Carrito</button>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal del carrito -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modalSale">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cartModalLabel">Carrito de Compras</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table id="cartTable" class="table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Unidad</th>
+                                <th>Descripción</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí se agregarán los artículos seleccionados -->
+                        </tbody>
+                    </table>
+                    <h5>Total General: <span id="grandTotal">0.00</span></h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="confirmSaleButton">Confirmar Venta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario oculto para gestionar el carrito -->
+    <form id="cartForm" action="{{ route('sales.store') }}" method="POST" style="display: none;">
+        @csrf
+        <input type="hidden" name="customer_id" id="customer_id">
+        <input type="hidden" name="products[]" id="productsInput">
+    </form>
+
 </div>
 
-@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const productSelect = document.getElementById('product-select');
-    const addProductBtn = document.getElementById('add-product-btn');
-    const productsTableBody = document.querySelector('#products-table tbody');
-    const confirmSaleBtn = document.getElementById('confirm-sale-btn');
-    const saleSummary = document.getElementById('sale-summary');
-    const totalSaleAmount = document.getElementById('total-sale-amount');
-    const submitSaleBtn = document.getElementById('submit-sale-btn');
-    const saleForm = document.getElementById('sale-form');
+    var cart = []; // Array para almacenar los productos seleccionados
 
-    // Función para agregar productos a la tabla
-    addProductBtn.addEventListener('click', function() {
-        const selectedOption = productSelect.options[productSelect.selectedIndex];
-        const productId = selectedOption.value;
-        const productName = selectedOption.text;
-        const productPrice = selectedOption.getAttribute('data-price');
-        const productQuantity = selectedOption.getAttribute('data-quantity');
+    // Función para capturar el ID del cliente al seleccionar un nombre
+    document.getElementById('customerInput').addEventListener('input', function() {
+        const value = this.value;
+        const options = document.getElementById('customers').querySelectorAll('option');
 
-        if (!productId) return;
-
-        // Verificar si el producto ya está en la tabla
-        const existingRow = Array.from(productsTableBody.rows).find(row => row.dataset.productId === productId);
-        if (existingRow) {
-            const quantityInput = existingRow.querySelector('input[name*="[quantity]"]');
-            const newQuantity = parseInt(quantityInput.value) + 1;
-
-            if (newQuantity <= productQuantity) {
-                quantityInput.value = newQuantity;
-            } else {
-                alert('No puedes agregar más de la cantidad disponible');
+        options.forEach(option => {
+            if (option.value === value) {
+                document.getElementById('customer_id').value = option.getAttribute('data-id');
             }
-
-            return;
-        }
-
-        // Crear una nueva fila en la tabla de productos
-        const row = document.createElement('tr');
-        row.dataset.productId = productId;
-        row.innerHTML = `
-            <td>${productName}</td>
-            <td>
-                <input type="number" name="products[${productsTableBody.rows.length}][quantity]" 
-                       value="1" min="1" max="${productQuantity}" 
-                       class="form-control" required>
-                <input type="hidden" name="products[${productsTableBody.rows.length}][id]" value="${productId}">
-            </td>
-            <td>${productPrice} Bs</td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm remove-product-btn">
-                    <i class="fas fa-trash"></i> Eliminar
-                </button>
-            </td>
-        `;
-
-        productsTableBody.appendChild(row);
-
-        // Limpiar selección
-        productSelect.selectedIndex = 0;
-    });
-
-    // Eliminar productos de la tabla
-    productsTableBody.addEventListener('click', function(event) {
-        if (event.target.classList.contains('remove-product-btn')) {
-            event.target.closest('tr').remove();
-        }
-    });
-
-    // Mostrar modal de confirmación con el resumen de la venta
-    confirmSaleBtn.addEventListener('click', function() {
-        saleSummary.innerHTML = '';
-        let total = 0;
-
-        Array.from(productsTableBody.rows).forEach(row => {
-            const productName = row.cells[0].textContent;
-            const quantity = row.querySelector('input[name*="[quantity]"]').value;
-            const price = parseFloat(row.cells[2].textContent.replace(' Bs', ''));
-            const productTotal = price * quantity;
-
-            total += productTotal;
-
-            // Agregar productos al resumen
-            saleSummary.innerHTML += `
-                <tr>
-                    <td>${productName}</td>
-                    <td>${quantity}</td>
-                    <td>${price.toFixed(2)} Bs</td>
-                    <td>${productTotal.toFixed(2)} Bs</td>
-                </tr>
-            `;
         });
+    });
 
-        // Mostrar total en el modal
-        totalSaleAmount.textContent = total.toFixed(2);
+  
+function updateUnits(productId) {
+    var unitsTableBody = document.getElementById('unitsTable').getElementsByTagName('tbody')[0];
+    unitsTableBody.innerHTML = ''; // Limpiar la tabla
+
+    @foreach($products as $product)
+        // Asegúrate de que estás comparando correctamente el ID
+        if (productId == "{{ $product->id }}") {
+            @foreach($product->productUnits as $productUnit)
+                var row = unitsTableBody.insertRow();
+                row.insertCell(0).innerText = "{{ $productUnit->product->name }}";
+                row.insertCell(1).innerText = "{{ $productUnit->unit->name }}";
+                row.insertCell(2).innerText = "{{ $productUnit->unit->description }}";
+                row.insertCell(3).innerText = "{{ $productUnit->price }}";
+                row.insertCell(4).innerText = "{{ $productUnit->stock }}";
+
+                // Agregar botón para añadir al carrito
+                var addButton = document.createElement('button');
+                addButton.innerText = 'Añadir';
+                addButton.className = 'btn btn-success btn-sm';
+                addButton.onclick = (function(unitId, price, productId, productName, description, stock) {
+                    return function() {
+                        openConfirmModal(unitId, price, productId, productName, description, stock);
+                    };
+                })("{{ $productUnit->unit->id }}", "{{ $productUnit->price }}", "{{ $product->id }}", "{{ $product->name }}", "{{ $productUnit->unit->description }}", "{{ $productUnit->stock }}");
+                var cell = row.insertCell(5);
+                cell.appendChild(addButton);
+            @endforeach
+        }
+    @endforeach
+}
+
+// Función para actualizar las unidades según el producto del datalist
+function updateUnitsFromInput() {
+    const productInput = document.getElementById('productInput');
+    const value = productInput.value;
+    const options = document.getElementById('products').querySelectorAll('option');
+
+    let productId; // Variable para almacenar el ID del producto
+
+    options.forEach(option => {
+        if (option.value === value) {
+            productId = option.getAttribute('data-id'); // Guardar el ID del producto
+        }
+    });
+
+    if (productId) {
+        updateUnits(productId); // Llamar a la función de actualización de unidades
+    }
+}
+
+
+    // Función para actualizar las unidades según el producto del datalist
+    function updateUnitsFromInput() {
+        const productInput = document.getElementById('productInput');
+        const value = productInput.value;
+        const options = document.getElementById('products').querySelectorAll('option');
+
+        options.forEach(option => {
+            if (option.value === value) {
+                const productId = option.getAttribute('data-id');
+                // Llamar a la función de actualización de unidades con el ID del producto
+                updateUnits(productId);
+            }
+        });
+    }
+
+    function openConfirmModal(unitId, price, productId, productName, description, stock) {
+        document.getElementById('confirmProductName').innerText = productName;
+        document.getElementById('confirmDescription').innerText = description;
+        document.getElementById('confirmPrice').innerText = price;
+
+        var quantityInput = document.getElementById('confirmQuantityInput');
+        quantityInput.value = 1; // Valor por defecto
+        quantityInput.max = stock; // Establecer el máximo permitido
+        updateTotal(quantityInput.value, price);
+
+        // Manejar el cambio en el input para actualizar el total
+        quantityInput.oninput = function() {
+            var quantity = parseInt(this.value);
+            if (quantity > stock) {
+                this.value = stock; // No permitir más que el stock disponible
+                alert("No se puede seleccionar más de " + stock + " unidades.");
+            }
+            updateTotal(this.value, price);
+        };
+
+        // Guardar la información para añadir al carrito
+        document.getElementById('addToCartButton').onclick = function() {
+            var quantity = parseInt(quantityInput.value);
+            addToCart(productId, unitId, price, quantity, productName, description);
+            $('#confirmQuantityModal').modal('hide'); // Cerrar el modal
+        };
 
         // Abrir el modal
-        new bootstrap.Modal(document.getElementById('confirmSaleModal')).show();
-    });
+        $('#confirmQuantityModal').modal('show');
+    }
 
-    // Confirmar la venta y enviar el formulario
-    submitSaleBtn.addEventListener('click', function() {
-        saleForm.submit();
-    });
-});
+    function updateTotal(quantity, price) {
+        var total = quantity * price;
+        document.getElementById('confirmTotal').innerText = total.toFixed(2);
+    }
+
+    function addToCart(id, unitId, price, quantity, productName, description) {
+        // Añadir el artículo al carrito
+        cart.push({ 
+            
+            id: id, 
+            unitId: unitId, 
+            description: description, 
+            price: price, 
+            quantity: quantity 
+        });
+
+        // Actualizar la tabla del carrito
+        updateCartTable();
+        updateCartCount();
+    }
+
+    function updateCartTable() {
+        var cartTableBody = document.getElementById('cartTable').getElementsByTagName('tbody')[0];
+        cartTableBody.innerHTML = ''; // Limpiar la tabla
+
+        var grandTotal = 0;
+
+        cart.forEach(function(item) {
+            var row = cartTableBody.insertRow();
+            row.insertCell(0).innerText = item.id; // Nombre del producto
+            row.insertCell(1).innerText = item.unitId; // ID de la unidad
+            row.insertCell(2).innerText = item.description;
+            row.insertCell(3).innerText = item.price;
+            row.insertCell(4).innerText = item.quantity;
+
+            var total = item.price * item.quantity;
+            row.insertCell(5).innerText = total.toFixed(2);
+
+            var deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Eliminar';
+            deleteButton.className = 'btn btn-danger btn-sm';
+            deleteButton.onclick = function() {
+                removeFromCart(item.id);
+            };
+            var cell = row.insertCell(6);
+            cell.appendChild(deleteButton);
+
+            grandTotal += total; // Sumar al total general
+        });
+
+        document.getElementById('grandTotal').innerText = grandTotal.toFixed(2); // Mostrar el total general
+    }
+
+    function updateCartCount() {
+        document.getElementById('cartCount').innerText = cart.length; // Actualizar el contador del carrito
+    }
+
+    function removeFromCart(id) {
+        cart = cart.filter(item => item.id !== id); // Filtrar el carrito
+        updateCartTable(); // Actualizar la tabla
+        updateCartCount(); // Actualizar el contador
+    }
+
+    document.getElementById('confirmSaleButton').onclick = function() {
+        // Guardar el ID del cliente
+        var customerId = document.getElementById('customer_id').value;
+        document.getElementById('customer_id').value = customerId; // El valor es el ID del cliente
+
+        // Guardar los productos en un campo oculto
+        document.getElementById('productsInput').value = JSON.stringify(cart);
+
+        // Enviar el formulario
+        document.getElementById('cartForm').submit();
+    };
 </script>
-@endpush
+<style>
+    .modalSale {
+        max-width: 65%;
+        width: auto;
+    }
+</style>
 @endsection
